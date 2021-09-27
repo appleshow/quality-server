@@ -27,16 +27,16 @@ public class CreateUserRequest implements Serializable {
     private String userAddr;
     @ApiModelProperty(name = "userType", required = false, example = "", notes = "用户类型")
     private String userType;
+    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
+    private Integer organizationId;
+    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "用户组织链路")
+    private String atr1;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
     private String flag;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态。0 无效（取消）， 1 有效")
     private Integer status;
     @ApiModelProperty(name = "remark", required = false, example = "", notes = "备注")
     private String remark;
-    @ApiModelProperty(name = "organizationIds", required = false, example = "", notes = "用户所属组织")
-    private Integer[] organizationIds;
-    @ApiModelProperty(name = "roleIds", required = false, example = "", notes = "用户权限")
-    private Integer[] roleIds;
 
     public ErrorMessage check() {
         if (!StringUtils.hasLength(userCode)) {

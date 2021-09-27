@@ -70,7 +70,7 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
         log.info("call userWithGroupRepository.findByCode({})", request.getUserCode());
         final UserInfo user = userInfoRepository.findByUserCode(request.getUserCode()).orElse(null);
         if (null != user) {
-            if (Const.UserStatus.INVALID.equalWithCode(user.getStatus())) {
+            if (Const.Status.INVALID.equalWithCode(user.getStatus())) {
                 saveLog(Const.OperationType.LOGIN, null, ErrorMessage.USER_INVALID);
                 return new ResponseData(ErrorMessage.USER_INVALID);
             }

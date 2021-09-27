@@ -68,6 +68,34 @@ public abstract class DataUtil {
                 .orElse(null);
     }
 
+    public static Integer getAuthorityOrganizationId() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .filter(g -> g.getAuthority().startsWith(Const.USER_ORGANIZATION_PREFIX))
+                .findFirst()
+                .map(g -> Integer.valueOf(g.getAuthority().replace(Const.USER_ORGANIZATION_PREFIX, "")))
+                .orElse(null);
+    }
+
+    public static String getAuthorityUserType() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .filter(g -> g.getAuthority().startsWith(Const.USER_TYPE_PREFIX))
+                .findFirst()
+                .map(g -> g.getAuthority().replace(Const.USER_TYPE_PREFIX, ""))
+                .orElse(null);
+    }
+
     public static String[] getNullPropertyNames(Object source) {
         final BeanWrapper wrapper = new BeanWrapperImpl(source);
         final PropertyDescriptor[] descriptors = wrapper.getPropertyDescriptors();

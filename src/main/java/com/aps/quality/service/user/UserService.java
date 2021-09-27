@@ -1,6 +1,7 @@
 package com.aps.quality.service.user;
 
 import com.aps.quality.model.ResponseData;
+import com.aps.quality.model.dto.UserConciseDto;
 import com.aps.quality.model.dto.UserInfoDto;
 import com.aps.quality.model.user.CreateUserRequest;
 import com.aps.quality.model.user.ResetPasswordRequest;
@@ -26,4 +27,6 @@ public interface UserService {
     ResponseData<Page<UserInfoDto>> findPageable(SearchUserRequest request);
 
     ResponseData<List<UserInfoDto>> find(SearchUserRequest request);
+
+    ResponseData<List<UserConciseDto>> findApproval();
 }

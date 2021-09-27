@@ -10,6 +10,7 @@ import com.aps.quality.model.organization.SearchOrganizationRequest;
 import com.aps.quality.model.organization.UpdateOrganizationRequest;
 import com.aps.quality.repository.OrganizationInfoRepository;
 import com.aps.quality.repository.OrganizationMappingInfoRepository;
+import com.aps.quality.repository.UserInfoRepository;
 import com.aps.quality.repository.UserOrganizationInfoRepository;
 import com.aps.quality.service.OperationLogService;
 import com.aps.quality.util.Const;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +38,8 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
     private OrganizationMappingInfoRepository organizationMappingInfoRepository;
     @Resource
     private UserOrganizationInfoRepository userOrganizationInfoRepository;
+    @Resource
+    private UserInfoRepository userInfoRepository;
 
     @Resource
     private OrganizationInfoMapper organizationInfoMapper;
@@ -54,28 +58,41 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
         }
         final OrganizationInfo organizationInfo = new OrganizationInfo();
         BeanUtils.copyProperties(request, organizationInfo, DataUtil.getNullPropertyNames(request));
-        organizationInfo.setStatus(Const.UserStatus.NORMAL.getCode());
+        organizationInfo.setStatus(Const.Status.NORMAL.getCode());
 
         log.info("call organizationInfoRepository.save()");
         organizationInfoRepository.save(organizationInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.ORGANIZATION, String.format("%d", organizationInfo.getOrganizationId()), request);
 
         final Set<Integer> fatherIds = new HashSet<>();
-        int fatherId = request.getFatherOrganizationId();
-        while (fatherId != 1) {
-            fatherIds.add(fatherId);
-            log.info("call organizationMappingInfoRepository.findByChildOrganizationId({})", fatherId);
-            final List<OrganizationMappingInfo> organizationMappingInfoList = organizationMappingInfoRepository.findByChildOrganizationId(fatherId).orElse(null);
-            if (null != organizationMappingInfoList && !organizationMappingInfoList.isEmpty()) {
-                fatherId = organizationMappingInfoList.get(0).getFatherOrganizationId();
-            } else {
-                break;
-            }
+        fatherIds.add(organizationInfo.getOrganizationId());
+        final Set<Integer> fatherIdsCheck = new HashSet<>();
+        fatherIdsCheck.add(request.getFatherOrganizationId());
+        while (!fatherIdsCheck.isEmpty()) {
+            final List<Integer> tempIds = new ArrayList<>();
+            fatherIdsCheck.forEach(id -> {
+                fatherIds.add(id);
+                tempIds.add(id);
+            });
+            fatherIdsCheck.clear();
+            tempIds.forEach(id -> {
+                log.info("call organizationMappingInfoRepository.findByChildOrganizationId({})", id);
+                final List<OrganizationMappingInfo> organizationMappingInfoList = organizationMappingInfoRepository.findByChildOrganizationIdAndFlag(id, Const.YES).orElse(null);
+                if (null != organizationMappingInfoList && !organizationMappingInfoList.isEmpty()) {
+                    organizationMappingInfoList.forEach(om -> fatherIdsCheck.add(om.getFatherOrganizationId()));
+                }
+            });
         }
+
         fatherIds.forEach(f -> {
             final OrganizationMappingInfo organizationMappingInfo = new OrganizationMappingInfo();
             organizationMappingInfo.setFatherOrganizationId(f);
             organizationMappingInfo.setChildOrganizationId(organizationInfo.getOrganizationId());
+            if (organizationInfo.getOrganizationId().equals(f)) {
+                organizationMappingInfo.setFlag(Const.NO);
+            } else {
+                organizationMappingInfo.setFlag(Const.YES);
+            }
             organizationMappingInfo.setStatus(1);
 
             organizationMappingInfoRepository.save(organizationMappingInfo);
@@ -117,7 +134,11 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
             return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
         }
         log.info("call organizationMappingInfoRepository.countByFatherOrganizationId({})", id);
-        if (organizationMappingInfoRepository.countByFatherOrganizationId(id).orElse(0) > 0) {
+        if (organizationMappingInfoRepository.countByFatherOrganizationIdAndFlag(id, Const.YES).orElse(0) > 0) {
+            return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
+        }
+        log.info("call userInfoRepository.countByOrganizationId({})", id);
+        if (userInfoRepository.countByOrganizationId(id).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
         }
 

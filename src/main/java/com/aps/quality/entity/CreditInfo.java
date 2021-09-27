@@ -13,53 +13,36 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Entity
-@Table(name = "user_info")
+@Table(name = "credit_info")
 @EntityListeners(AuditingEntityListener.class)
-public class UserInfo implements Serializable {
+public class CreditInfo implements Serializable {
     @Id
     @GeneratedValue
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "credit_id", nullable = false)
+    private Integer creditId;
+    @Column(name = "user_id", nullable = false, length = 100)
     private Integer userId;
-
-    @Column(name = "user_code", nullable = false, length = 60)
-    private String userCode;
-
-    @Column(name = "user_name", nullable = true, length = 60)
-    private String userName;
-
-    @Column(name = "user_gender", nullable = true, length = 1)
-    private String userGender;
-
-    @Column(name = "user_phone", nullable = true, length = 20)
-    private String userPhone;
-
-    @Column(name = "user_email", nullable = true, length = 100)
-    private String userEmail;
-
-    @Column(name = "user_addr", nullable = true, length = 200)
-    private String userAddr;
-
-    @Column(name = "user_type", nullable = true, length = 2)
-    private String userType;
-
-    @Column(name = "user_password", nullable = true, length = 100)
-    private String userPassword;
-
-    @Column(name = "organization_id", nullable = false)
-    private Integer organizationId;
-
-    @Column(name = "sso_id", nullable = true, updatable = false)
-    private String ssoId;
-
-    @Column(name = "sso_type", nullable = true, updatable = false)
-    private String ssoType;
-
-    @Column(name = "atr1", nullable = true, length = 400)
+    @Column(name = "campaign_type", nullable = true, length = 100)
+    private String campaignType;
+    @Column(name = "campaign_name", nullable = true, length = 200)
+    private String campaignName;
+    @Column(name = "credit", nullable = true, precision = 3)
+    private BigDecimal credit;
+    @Column(name = "credit_year", nullable = true, length = 5)
+    private Integer creditYear;
+    @Column(name = "credit_month", nullable = true, length = 5)
+    private Integer creditMonth;
+    @Column(name = "credit_time", nullable = true)
+    private Date creditTime;
+    @Column(name = "instructor", nullable = true)
+    private String instructor;
+    @Column(name = "atr1", nullable = true, length = 100)
     private String atr1;
 
     @Column(name = "atr2", nullable = true, length = 100)
@@ -102,13 +85,13 @@ public class UserInfo implements Serializable {
     @LastModifiedBy
     private String updateBy;
 
-    @OneToOne
-    @JoinColumn(name = "organization_id", referencedColumnName = "organization_id", insertable = false, updatable = false)
+    @OneToMany
+    @JoinColumn(name = "credit_id", referencedColumnName = "credit_id", insertable = false, updatable = false)
     @LazyCollection(LazyCollectionOption.FALSE)
     @NotFound(action = NotFoundAction.IGNORE)
-    private OrganizationConcise organizationInfo;
+    private List<CreditApprovalConcise> creditApprovalConcises;
 
     public void beforeSave() {
-        organizationInfo = null;
+        creditApprovalConcises = null;
     }
 }

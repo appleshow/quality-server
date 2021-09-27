@@ -24,31 +24,35 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Integer>,
             "  AND (a.userCode = :userCode OR a.ssoId = :userCode)")
     Optional<Integer> countByUserCode(@Param("userId") Integer userId, @Param("userCode") String userCode);
 
+    Optional<Integer> countByOrganizationId(Integer organizationId);
+
     Optional<UserInfo> findByUserCode(String userCode);
 
     Optional<UserInfo> findBySsoId(String ssoId);
 
     @Query("SELECT a FROM UserInfo a " +
             "WHERE (:#{#search.userId} IS NULL OR a.userId = :#{#search.userId}) " +
-            "AND   (:#{#search.userCode} IS NULL OR a.userCode = :#{#search.userCode}) " +
-            "AND   (:#{#search.userName} IS NULL OR lower(a.userName) LIKE :#{#search.userName}) " +
-            "AND   (:#{#search.userPhone} IS NULL OR a.userPhone LIKE :#{#search.userPhone}) " +
-            "AND   (:#{#search.userEmail} IS NULL OR a.userEmail LIKE :#{#search.userEmail}) " +
-            "AND   (:#{#search.userType} IS NULL OR a.userType = :#{#search.userType}) " +
-            "AND   (:#{#search.userGender} IS NULL OR a.userGender = :#{#search.userGender}) " +
-            "AND   (:#{#search.flag} IS NULL OR a.flag = :#{#search.flag}) " +
-            "AND   (:#{#search.status} IS NULL OR a.status = :#{#search.status}) ")
+            "  AND (:#{#search.userCode} IS NULL OR a.userCode = :#{#search.userCode}) " +
+            "  AND (:#{#search.userName} IS NULL OR lower(a.userName) LIKE :#{#search.userName}) " +
+            "  AND (:#{#search.userPhone} IS NULL OR a.userPhone LIKE :#{#search.userPhone}) " +
+            "  AND (:#{#search.userEmail} IS NULL OR a.userEmail LIKE :#{#search.userEmail}) " +
+            "  AND (:#{#search.userType} IS NULL OR a.userType = :#{#search.userType}) " +
+            "  AND (:#{#search.userGender} IS NULL OR a.userGender = :#{#search.userGender}) " +
+            "  AND (:#{#search.flag} IS NULL OR a.flag = :#{#search.flag}) " +
+            "  AND (:#{#search.status} IS NULL OR a.status = :#{#search.status}) " +
+            "  AND (:#{#search.organizationId} IS NULL OR a.organizationId IN (SELECT b.childOrganizationId FROM OrganizationMappingInfo b WHERE b.fatherOrganizationId = :#{#search.organizationId})) ")
     Page<UserInfo> findPageable(@Param("search") SearchUserRequest search, Pageable pageable);
 
     @Query("SELECT a FROM UserInfo a " +
-            "WHERE (:#{#search.userId} IS NULL OR a.userId = :#{#search.userId})" +
-            "AND   (:#{#search.userCode} IS NULL OR a.userCode = :#{#search.userCode}) " +
-            "AND   (:#{#search.userName} IS NULL OR lower(a.userName) LIKE :#{#search.userName}) " +
-            "AND   (:#{#search.userPhone} IS NULL OR a.userPhone LIKE :#{#search.userPhone}) " +
-            "AND   (:#{#search.userEmail} IS NULL OR a.userEmail LIKE :#{#search.userEmail}) " +
-            "AND   (:#{#search.userType} IS NULL OR a.userType = :#{#search.userType}) " +
-            "AND   (:#{#search.userGender} IS NULL OR a.userGender = :#{#search.userGender}) " +
-            "AND   (:#{#search.flag} IS NULL OR a.flag = :#{#search.flag}) " +
-            "AND   (:#{#search.status} IS NULL OR a.status = :#{#search.status}) ")
+            "WHERE (:#{#search.userId} IS NULL OR a.userId = :#{#search.userId}) " +
+            "  AND (:#{#search.userCode} IS NULL OR a.userCode = :#{#search.userCode}) " +
+            "  AND (:#{#search.userName} IS NULL OR lower(a.userName) LIKE :#{#search.userName}) " +
+            "  AND (:#{#search.userPhone} IS NULL OR a.userPhone LIKE :#{#search.userPhone}) " +
+            "  AND (:#{#search.userEmail} IS NULL OR a.userEmail LIKE :#{#search.userEmail}) " +
+            "  AND (:#{#search.userType} IS NULL OR a.userType = :#{#search.userType}) " +
+            "  AND (:#{#search.userGender} IS NULL OR a.userGender = :#{#search.userGender}) " +
+            "  AND (:#{#search.flag} IS NULL OR a.flag = :#{#search.flag}) " +
+            "  AND (:#{#search.status} IS NULL OR a.status = :#{#search.status}) " +
+            "  AND (:#{#search.organizationId} IS NULL OR a.organizationId IN (SELECT b.childOrganizationId FROM OrganizationMappingInfo b WHERE b.fatherOrganizationId = :#{#search.organizationId})) ")
     List<UserInfo> find(@Param("search") SearchUserRequest search);
 }

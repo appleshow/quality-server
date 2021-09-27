@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfoConciseDto implements Serializable {
+public class UserConciseDto implements Serializable {
+    private Integer userId;
     private String userName;
 }

@@ -16,6 +16,8 @@ public class OrganizationInfoDto implements Serializable {
     private String organizationName;
     @ApiModelProperty(name = "organizationType", required = false, example = "", notes = "组织类型")
     private String organizationType;
+    @ApiModelProperty(name = "organizationLevel", required = false, example = "", notes = "组织屋级")
+    private Integer organizationLevel;
     @ApiModelProperty(name = "fatherOrganizationId", required = false, example = "", notes = "父组织ID")
     private Integer fatherOrganizationId;
     @ApiModelProperty(name = "atr1", required = false, example = "", notes = "备用")

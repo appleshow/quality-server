@@ -12,6 +12,8 @@ public abstract class Const {
     public static final String NO = "N";
 
     public static final String USER_ID_PREFIX = "#USER@";
+    public static final String USER_TYPE_PREFIX = "#USERTYPE@";
+    public static final String USER_ORGANIZATION_PREFIX = "#USERORT@";
     public static final String CREATE_TIME = "createTime";
     public static final String DEFAULT_PASSWORD = "asdiop@963";
     public static final Integer DEFAULT_NUMBER_PER_PAGE = 10;
@@ -20,7 +22,8 @@ public abstract class Const {
     public static final Integer IS_DEFAULT = 1;
     public static final Integer NOT_DEFAULT = 0;
     public static final String DEFAULT_TITLE = "默认播放列表";
-    public static final String DEFAULT_FREQUENCY= "60000";
+    public static final String DEFAULT_FREQUENCY = "60000";
+
 
     @Getter
     public enum UserPrefix {
@@ -110,39 +113,7 @@ public abstract class Const {
 
     @Getter
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum UserType {
-        NORMAL("NORMAL", "普通"),
-        ;
-
-        @ApiModelProperty(name = "code", required = false, example = "", notes = "代码")
-        private String code;
-        @ApiModelProperty(name = "description", required = false, example = "", notes = "描述")
-        private String description;
-
-        UserType(String code, String description) {
-            this.code = code;
-            this.description = description;
-        }
-
-        public boolean equalWithCode(Integer code) {
-            return null != code && this.code.equals(code);
-        }
-
-        public static UserType findByCode(Integer code) {
-            Optional<UserType> status = Arrays.stream(UserType.values())
-                    .filter(d -> null != code && d.getCode().equals(code))
-                    .findAny();
-            if (status.isPresent()) {
-                return status.get();
-            } else {
-                return null;
-            }
-        }
-    }
-
-    @Getter
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum UserStatus {
+    public enum Status {
         INVALID(0, "无效"),
         NORMAL(1, "正常"),
         ;
@@ -152,7 +123,7 @@ public abstract class Const {
         @ApiModelProperty(name = "description", required = false, example = "", notes = "描述")
         private String description;
 
-        UserStatus(Integer code, String description) {
+        Status(Integer code, String description) {
             this.code = code;
             this.description = description;
         }
@@ -161,8 +132,8 @@ public abstract class Const {
             return null != code && this.code.equals(code);
         }
 
-        public static UserStatus findByCode(Integer code) {
-            Optional<UserStatus> status = Arrays.stream(UserStatus.values())
+        public static Status findByCode(Integer code) {
+            Optional<Status> status = Arrays.stream(Status.values())
                     .filter(d -> null != code && d.getCode().equals(code))
                     .findAny();
             if (status.isPresent()) {
@@ -415,6 +386,9 @@ public abstract class Const {
         ASSIGN_GROUP_TO_USER("ASSIGN_GROUP_TO_USER"),
         SEPARATE_GROUP_FROM_USER("SEPARATE_GROUP_FROM_USER"),
         ORGANIZATION("ORGANIZATION"),
+        CAMPAIGN("CAMPAIGN"),
+        CAMPAIGN_STATUS("CAMPAIGN_STATUS"),
+        CREDIT("CREDIT"),
         ;
 
         private String code;
@@ -624,5 +598,29 @@ public abstract class Const {
                 return null;
             }
         }
+    }
+
+    public static class OrganizationType {
+        // 根
+        public final static String ROOT = "ROOT";
+        // 团委直属
+        public final static String YLC = "YLC";
+        // 院系
+        public final static String FACULTY = "FACULTY";
+    }
+
+    public static class UserType {
+        // 管理员
+        public final static String ADMIN = "ADMIN";
+        // 团委直属 - 团委会/学生会
+        public final static String YLC_L1 = "YLC_L1";
+        // 团委直属 - 协会
+        public final static String YLC_L2 = "YLC_L2";
+        // 系管理员
+        public final static String FACULTY = "FACULTY";
+        // 班级管理员
+        public final static String CLASS = "CLASS";
+        // 班级学生
+        public final static String STUDENT = "STUDENT";
     }
 }

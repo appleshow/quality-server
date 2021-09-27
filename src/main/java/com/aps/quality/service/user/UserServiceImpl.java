@@ -1,8 +1,11 @@
 package com.aps.quality.service.user;
 
+import com.aps.quality.configuration.SwaggerConfig;
 import com.aps.quality.entity.*;
+import com.aps.quality.mapper.UserInfoConciseMapper;
 import com.aps.quality.mapper.UserInfoMapper;
 import com.aps.quality.model.ResponseData;
+import com.aps.quality.model.dto.UserConciseDto;
 import com.aps.quality.model.dto.UserInfoDto;
 import com.aps.quality.model.user.CreateUserRequest;
 import com.aps.quality.model.user.ResetPasswordRequest;
@@ -34,17 +37,19 @@ public class UserServiceImpl extends OperationLogService implements UserService 
     @Resource
     private OrganizationInfoRepository organizationInfoRepository;
     @Resource
-    private RoleInfoRepository roleInfoRepository;
-    @Resource
     private UserOrganizationInfoRepository userOrganizationInfoRepository;
     @Resource
     private UserRoleInfoRepository userRoleInfoRepository;
+    @Resource
+    private UserInfoConciseRepository userInfoConciseRepository;
 
     @Resource
     private PasswordEncoder passwordEncoder;
 
     @Resource
     private UserInfoMapper userInfoMapper;
+    @Resource
+    private UserInfoConciseMapper userInfoConciseMapper;
 
     @Override
     public ResponseData<Boolean> create(final CreateUserRequest request) {
@@ -57,34 +62,21 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (userInfoRepository.countByUserCode(0, request.getUserCode()).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.CODE_EXIST);
         }
-        if (null != request.getOrganizationIds() && request.getOrganizationIds().length > 0) {
-            for (Integer organizationId : request.getOrganizationIds()) {
-                final OrganizationInfo organizationInfo = organizationInfoRepository.findById(organizationId).orElse(null);
-                if (null == organizationInfo) {
-                    return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
-                }
-            }
-        }
-        if (null != request.getRoleIds() && request.getRoleIds().length > 0) {
-            for (Integer roleId : request.getRoleIds()) {
-                final RoleInfo roleInfo = roleInfoRepository.findById(roleId).orElse(null);
-                if (null == roleInfo) {
-                    return new ResponseData(ErrorMessage.ROLE_NOT_EXIST);
-                }
-            }
+        final OrganizationInfo organizationInfo = organizationInfoRepository.findById(request.getOrganizationId()).orElse(null);
+        if (null == organizationInfo) {
+            return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
         }
 
         final UserInfo userInfo = new UserInfo();
         BeanUtils.copyProperties(request, userInfo, DataUtil.getNullPropertyNames(request));
         userInfo.setUserPassword(passwordEncoder.encode(!StringUtils.hasLength(request.getUserPassword()) ? Const.DEFAULT_PASSWORD : request.getUserPassword()));
-        userInfo.setStatus(Const.UserStatus.NORMAL.getCode());
+        userInfo.setUserType(findUserType(organizationInfo));
+        userInfo.setStatus(Const.Status.NORMAL.getCode());
 
         log.info("call  userInfoRepository.save()");
         userInfo.beforeSave();
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.USER, request.getUserCode(), request);
-
-        addUserExtendInfo(userInfo.getUserId(), request.getOrganizationIds(), request.getRoleIds());
 
         return new ResponseData<>(true);
     }
@@ -101,14 +93,17 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
+        final OrganizationInfo organizationInfo = organizationInfoRepository.findById(request.getOrganizationId()).orElse(null);
+        if (null == organizationInfo) {
+            return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
+        }
+        
         BeanUtils.copyProperties(request, userInfo, DataUtil.getNullPropertyNames(request));
+        userInfo.setUserType(findUserType(organizationInfo));
         log.info("call userInfoRepository.save()");
         userInfo.beforeSave();
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER, userInfo.getUserCode(), request);
-
-        removeUserExtendInfo(userInfo.getUserId());
-        addUserExtendInfo(userInfo.getUserId(), request.getOrganizationIds(), request.getRoleIds());
 
         return new ResponseData<>(true);
     }
@@ -121,11 +116,11 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
-        userInfo.setStatus(Const.UserStatus.INVALID.getCode());
+        userInfo.setStatus(Const.Status.INVALID.getCode());
 
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
-        saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.UserStatus.INVALID.getDescription());
+        saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.Status.INVALID.getDescription());
 
         return new ResponseData<>(true);
     }
@@ -138,11 +133,11 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
-        userInfo.setStatus(Const.UserStatus.NORMAL.getCode());
+        userInfo.setStatus(Const.Status.NORMAL.getCode());
 
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
-        saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.UserStatus.NORMAL.getDescription());
+        saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.Status.NORMAL.getDescription());
 
         return new ResponseData<>(true);
     }
@@ -206,6 +201,47 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         final List<UserInfo> userInfos = userInfoRepository.find(request);
 
         return new ResponseData<>(userInfoMapper.mapAsList(userInfos, UserInfoDto.class));
+    }
+
+    @Override
+    public ResponseData<List<UserConciseDto>> findApproval() {
+        log.info("call findApproval()");
+
+        log.info("call userInfoConciseRepository.findApproval()");
+        final List<UserConcise> userConcises = userInfoConciseRepository.findApproval();
+
+        return new ResponseData<>(userInfoConciseMapper.mapAsList(userConcises, UserConciseDto.class));
+    }
+
+    private String findUserType(final OrganizationInfo organizationInfo) {
+        final String currentUserType = DataUtil.getAuthorityUserType();
+
+        switch (organizationInfo.getOrganizationType()) {
+            case Const.OrganizationType.YLC:
+                switch (organizationInfo.getOrganizationLevel()) {
+                    case 3:
+                        return Const.UserType.YLC_L1;
+                    case 4:
+                        return Const.UserType.YLC_L2;
+                    default:
+                }
+                break;
+            case Const.OrganizationType.FACULTY:
+                switch (organizationInfo.getOrganizationLevel()) {
+                    case 3:
+                        return Const.UserType.FACULTY;
+                    case 5:
+                        if (Const.UserType.FACULTY.equals(currentUserType) || Const.UserType.ADMIN.equals(currentUserType)) {
+                            return Const.UserType.CLASS;
+                        } else if (Const.UserType.CLASS.equals(currentUserType)) {
+                            return Const.UserType.STUDENT;
+                        }
+                    default:
+                }
+                break;
+            default:
+        }
+        return null;
     }
 
     private void removeUserExtendInfo(Integer userId) {

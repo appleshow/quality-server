@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "user_info")
 @EntityListeners(AuditingEntityListener.class)
-public class UserInfoConcise implements Serializable {
+public class UserConcise implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "user_id", nullable = false)

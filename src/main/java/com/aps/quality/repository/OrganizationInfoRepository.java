@@ -41,7 +41,7 @@ public interface OrganizationInfoRepository extends JpaRepository<OrganizationIn
             "  AND (:#{#search.organizationType} IS NULL OR a.organizationType = :#{#search.organizationType}) " +
             "  AND (:#{#search.flag} IS NULL OR a.flag = :#{#search.flag}) " +
             "  AND (:#{#search.status} IS NULL OR a.status = :#{#search.status}) " +
-            "ORDER BY a.fatherOrganizationId, a.organizationId")
+            "ORDER BY a.fatherOrganizationId,a.organizationType DESC, a.organizationId")
     List<OrganizationInfo> find(@Param("search") SearchOrganizationRequest search);
 
     @Query("SELECT a FROM OrganizationInfo a " +

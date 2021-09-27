@@ -68,7 +68,7 @@ public class SwaggerConfig {
                 .or(PathSelectors.regex("/user.*"))
                 .or(PathSelectors.regex("/authority.*"))
                 .or(PathSelectors.regex("/organization.*"))
-                .or(PathSelectors.regex("/material.*"))
-                .or(PathSelectors.regex("/basic.*"));
+                .or(PathSelectors.regex("/campaign.*"))
+                .or(PathSelectors.regex("/credit.*"));
     }
 }

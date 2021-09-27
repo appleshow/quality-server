@@ -9,30 +9,16 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfoDto implements Serializable {
-    @ApiModelProperty(name = "userId", required = true, example = "", notes = "用户ID")
-    private Integer userId;
-    @ApiModelProperty(name = "userCode", required = true, example = "", notes = "用户代码")
-    private String userCode;
-    @ApiModelProperty(name = "userName", required = true, example = "", notes = "用户名称")
-    private String userName;
-    @ApiModelProperty(name = "userGender", required = false, example = "", notes = "用户性别")
-    private String userGender;
-    @ApiModelProperty(name = "userPhone", required = false, example = "", notes = "用户手机号")
-    private String userPhone;
-    @ApiModelProperty(name = "userEmail", required = false, example = "", notes = "用户邮箱")
-    private String userEmail;
-    @ApiModelProperty(name = "userAddr", required = false, example = "", notes = "用户地址")
-    private String userAddr;
-    @ApiModelProperty(name = "userType", required = false, example = "", notes = "用户类型")
-    private String userType;
-    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
-    private Integer organizationId;
-    @ApiModelProperty(name = "ssoId", required = false, example = "", notes = "SSO ID")
-    private String ssoId;
-    @ApiModelProperty(name = "ssoType", required = false, example = "", notes = "SSO类型")
-    private String ssoType;
-    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "用户组织链路")
+public class CertificateInfoDto implements Serializable {
+    @ApiModelProperty(name = "certificateId", required = false, example = "", notes = "ID")
+    private Integer certificateId;
+    @ApiModelProperty(name = "creditId", required = false, example = "", notes = "学分ID")
+    private Integer creditId;
+    @ApiModelProperty(name = "type", required = false, example = "", notes = "证明材料类型")
+    private String type;
+    @ApiModelProperty(name = "url", required = false, example = "", notes = "证明材料URL")
+    private String url;
+    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "备用")
     private String atr1;
     @ApiModelProperty(name = "atr2", required = false, example = "", notes = "备用")
     private String atr2;
@@ -58,6 +44,4 @@ public class UserInfoDto implements Serializable {
     private Date updateTime;
     @ApiModelProperty(name = "updateBy", required = true, example = "test", notes = "最后更新人")
     private String updateBy;
-    @ApiModelProperty(name = "organizationInfo", required = true, example = "test", notes = "用户组织")
-    private OrganizationConciseDto organizationInfo;
 }

@@ -21,6 +21,8 @@ public class SearchUserRequest extends PageableSearch {
     private String userEmail;
     @ApiModelProperty(name = "userType", required = false, example = "", notes = "用户类型")
     private String userType;
+    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
+    private Integer organizationId;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
     private String flag;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态。0 无效（取消）， 1 有效")
@@ -33,6 +35,7 @@ public class SearchUserRequest extends PageableSearch {
         userType = DataUtil.nvl(userType, null);
         flag = DataUtil.nvl(flag, null);
         status = DataUtil.nvl(status, null);
+        organizationId = DataUtil.nvl(organizationId, DataUtil.getAuthorityOrganizationId());
         userName = DataUtil.likeFormat(userName);
         userPhone = DataUtil.likeFormat(userPhone);
         userEmail = DataUtil.likeFormat(userEmail);

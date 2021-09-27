@@ -41,6 +41,8 @@ public class UserDetailPortal implements UserDetail {
                     .ifPresent(rs -> Arrays.stream(rs).forEach(r -> set.add(new SimpleGrantedAuthority(r))));
 
             set.add(new SimpleGrantedAuthority(String.format("%s%d", Const.USER_ID_PREFIX, userInfo.getUserId())));
+            set.add(new SimpleGrantedAuthority(String.format("%s%s", Const.USER_TYPE_PREFIX, userInfo.getUserType())));
+            set.add(new SimpleGrantedAuthority(String.format("%s%d", Const.USER_ORGANIZATION_PREFIX, userInfo.getOrganizationId())));
 
             return new User(code, userInfo.getUserPassword(), set);
         }

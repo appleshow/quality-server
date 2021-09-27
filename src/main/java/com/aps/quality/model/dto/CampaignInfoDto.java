@@ -9,30 +9,20 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfoDto implements Serializable {
-    @ApiModelProperty(name = "userId", required = true, example = "", notes = "用户ID")
-    private Integer userId;
-    @ApiModelProperty(name = "userCode", required = true, example = "", notes = "用户代码")
-    private String userCode;
-    @ApiModelProperty(name = "userName", required = true, example = "", notes = "用户名称")
-    private String userName;
-    @ApiModelProperty(name = "userGender", required = false, example = "", notes = "用户性别")
-    private String userGender;
-    @ApiModelProperty(name = "userPhone", required = false, example = "", notes = "用户手机号")
-    private String userPhone;
-    @ApiModelProperty(name = "userEmail", required = false, example = "", notes = "用户邮箱")
-    private String userEmail;
-    @ApiModelProperty(name = "userAddr", required = false, example = "", notes = "用户地址")
-    private String userAddr;
-    @ApiModelProperty(name = "userType", required = false, example = "", notes = "用户类型")
-    private String userType;
-    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
-    private Integer organizationId;
-    @ApiModelProperty(name = "ssoId", required = false, example = "", notes = "SSO ID")
-    private String ssoId;
-    @ApiModelProperty(name = "ssoType", required = false, example = "", notes = "SSO类型")
-    private String ssoType;
-    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "用户组织链路")
+public class CampaignInfoDto implements Serializable {
+    @ApiModelProperty(name = "campaignId", required = false, example = "", notes = "活动ID")
+    private Integer campaignId;
+    @ApiModelProperty(name = "campaignName", required = false, example = "", notes = "活动名称")
+    private String campaignName;
+    @ApiModelProperty(name = "campaignType", required = false, example = "", notes = "活动类型")
+    private String campaignType;
+    @ApiModelProperty(name = "campaignStart", required = false, example = "", notes = "活动开始时间")
+    private Date campaignStart;
+    @ApiModelProperty(name = "campaignEnd", required = false, example = "", notes = "活动结束时间")
+    private Date campaignEnd;
+    @ApiModelProperty(name = "sponsor", required = false, example = "", notes = "主办单位")
+    private String sponsor;
+    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "备用")
     private String atr1;
     @ApiModelProperty(name = "atr2", required = false, example = "", notes = "备用")
     private String atr2;
@@ -58,6 +48,4 @@ public class UserInfoDto implements Serializable {
     private Date updateTime;
     @ApiModelProperty(name = "updateBy", required = true, example = "test", notes = "最后更新人")
     private String updateBy;
-    @ApiModelProperty(name = "organizationInfo", required = true, example = "test", notes = "用户组织")
-    private OrganizationConciseDto organizationInfo;
 }

@@ -1,4 +1,4 @@
-package com.aps.quality.model.organization;
+package com.aps.quality.model.campaign;
 
 import com.aps.quality.util.ErrorMessage;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -6,16 +6,23 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class UpdateOrganizationRequest implements Serializable {
-    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
-    private Integer organizationId;
-    @ApiModelProperty(name = "organizationName", required = false, example = "", notes = "组织名称")
-    private String organizationName;
-    @ApiModelProperty(name = "organizationType", required = false, example = "", notes = "组织类型")
-    private String organizationType;
+public class UpdateCampaignRequest implements Serializable {
+    @ApiModelProperty(name = "campaignId", required = false, example = "", notes = "活动ID")
+    private Integer campaignId;
+    @ApiModelProperty(name = "campaignName", required = false, example = "", notes = "活动名称")
+    private String campaignName;
+    @ApiModelProperty(name = "campaignType", required = false, example = "", notes = "活动类型")
+    private String campaignType;
+    @ApiModelProperty(name = "campaignStart", required = false, example = "", notes = "活动开始时间")
+    private Date campaignStart;
+    @ApiModelProperty(name = "campaignEnd", required = false, example = "", notes = "活动结束时间")
+    private Date campaignEnd;
+    @ApiModelProperty(name = "sponsor", required = false, example = "", notes = "主办单位")
+    private String sponsor;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
     private String flag;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态")
@@ -26,7 +33,7 @@ public class UpdateOrganizationRequest implements Serializable {
     private Integer version;
 
     public ErrorMessage check() {
-        if (null == organizationId) {
+        if (null == campaignId) {
             return ErrorMessage.ID_CAN_NOT_BE_NULL;
         }
         if (null == version) {

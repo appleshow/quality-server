@@ -1,6 +1,7 @@
 package com.aps.quality.controller;
 
 import com.aps.quality.model.ResponseData;
+import com.aps.quality.model.dto.UserConciseDto;
 import com.aps.quality.model.dto.UserInfoDto;
 import com.aps.quality.model.user.CreateUserRequest;
 import com.aps.quality.model.user.ResetPasswordRequest;
@@ -89,5 +90,12 @@ public class UserController extends ExceptionController {
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<List<UserInfoDto>> find(@RequestBody final SearchUserRequest request) {
         return userService.find(request);
+    }
+
+    @ApiOperation("查询用户")
+    @GetMapping("all/approval")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<List<UserConciseDto>> findApproval() {
+        return userService.findApproval();
     }
 }
