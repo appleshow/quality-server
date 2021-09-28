@@ -92,7 +92,7 @@ public class UserController extends ExceptionController {
         return userService.find(request);
     }
 
-    @ApiOperation("查询用户")
+    @ApiOperation("查询可审批用户")
     @GetMapping("all/approval")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<List<UserConciseDto>> findApproval() {

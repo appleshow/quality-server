@@ -1,6 +1,5 @@
 package com.aps.quality.service.user;
 
-import com.aps.quality.configuration.SwaggerConfig;
 import com.aps.quality.entity.*;
 import com.aps.quality.mapper.UserInfoConciseMapper;
 import com.aps.quality.mapper.UserInfoMapper;

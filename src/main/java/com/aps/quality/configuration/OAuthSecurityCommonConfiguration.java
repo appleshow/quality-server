@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -48,7 +47,7 @@ public class OAuthSecurityCommonConfiguration {
 
     @Bean
     public TokenStore tokenStore() {
-        return new JdbcTokenStore(dataSource);
+        return new CustomizeJdbcTokenStore(dataSource);
     }
 
     @Bean
@@ -80,7 +79,7 @@ public class OAuthSecurityCommonConfiguration {
     public ResourceServerTokenServices defaultTokenServices() {
         final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
         defaultTokenServices.setTokenEnhancer(accessTokenConverter());
-        defaultTokenServices.setTokenStore(new JdbcTokenStore(dataSource));
+        defaultTokenServices.setTokenStore(tokenStore());
 
         return defaultTokenServices;
     }

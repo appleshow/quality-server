@@ -4,6 +4,7 @@ import com.aps.quality.util.ErrorMessage;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -14,20 +15,20 @@ import java.util.Date;
 public class UpdateCreditRequest implements Serializable {
     @ApiModelProperty(name = "creditId", required = false, example = "", notes = "ID")
     private Integer creditId;
-    @ApiModelProperty(name = "userID", required = false, example = "", notes = "学生ID")
-    private Integer userID;
+    @ApiModelProperty(name = "userId", required = false, example = "", notes = "学生ID")
+    private Integer userId;
     @ApiModelProperty(name = "campaignType", required = false, example = "", notes = "项目类型")
     private String campaignType;
     @ApiModelProperty(name = "campaignName", required = false, example = "", notes = "项目名称")
     private String campaignName;
-    @ApiModelProperty(name = "studentCode", required = false, example = "", notes = "学号")
-    private String studentCode;
-    @ApiModelProperty(name = "studentName", required = false, example = "", notes = "学生姓名")
-    private String studentName;
-    @ApiModelProperty(name = "studentGender", required = false, example = "", notes = "学生性别")
-    private String studentGender;
-    @ApiModelProperty(name = "studentPhone", required = false, example = "", notes = "学生手机号")
-    private String studentPhone;
+    @ApiModelProperty(name = "userCode", required = false, example = "", notes = "学号")
+    private String userCode;
+    @ApiModelProperty(name = "userName", required = false, example = "", notes = "学生姓名")
+    private String userName;
+    @ApiModelProperty(name = "userGender", required = false, example = "", notes = "学生性别")
+    private String userGender;
+    @ApiModelProperty(name = "userPhone", required = false, example = "", notes = "学生手机号")
+    private String userPhone;
     @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "学生系别")
     private Integer organizationId;
     @ApiModelProperty(name = "grade", required = false, example = "", notes = "学生班级")
@@ -50,12 +51,13 @@ public class UpdateCreditRequest implements Serializable {
     private String remark;
     @ApiModelProperty(name = "version", required = false, example = "1", notes = "数据版本号。创建无须此参数，更新必须携带此参数")
     private Integer version;
-    @ApiModelProperty(name = "approvalUserIds", required = false, example = "", notes = "审批人ID")
-    private Integer[] approvalUserIds;
 
     public ErrorMessage check() {
         if (null == creditId) {
             return ErrorMessage.ID_CAN_NOT_BE_NULL;
+        }
+        if (null == userId && !StringUtils.hasLength(userCode)) {
+            return ErrorMessage.STUDENT_CODE_IS_NULL;
         }
         if (null == version) {
             return ErrorMessage.VERSION_IS_NULL;

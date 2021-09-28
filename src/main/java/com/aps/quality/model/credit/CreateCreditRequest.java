@@ -13,20 +13,20 @@ import java.util.Date;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CreateCreditRequest implements Serializable {
-    @ApiModelProperty(name = "userID", required = false, example = "", notes = "学生ID")
-    private Integer userID;
+    @ApiModelProperty(name = "userId", required = false, example = "", notes = "学生ID")
+    private Integer userId;
     @ApiModelProperty(name = "campaignType", required = false, example = "", notes = "项目类型")
     private String campaignType;
     @ApiModelProperty(name = "campaignName", required = false, example = "", notes = "项目名称")
     private String campaignName;
-    @ApiModelProperty(name = "studentCode", required = false, example = "", notes = "学号")
-    private String studentCode;
-    @ApiModelProperty(name = "studentName", required = false, example = "", notes = "学生姓名")
-    private String studentName;
-    @ApiModelProperty(name = "studentGender", required = false, example = "", notes = "学生性别")
-    private String studentGender;
-    @ApiModelProperty(name = "studentPhone", required = false, example = "", notes = "学生手机号")
-    private String studentPhone;
+    @ApiModelProperty(name = "userCode", required = false, example = "", notes = "学号")
+    private String userCode;
+    @ApiModelProperty(name = "userName", required = false, example = "", notes = "学生姓名")
+    private String userName;
+    @ApiModelProperty(name = "userGender", required = false, example = "", notes = "学生性别")
+    private String userGender;
+    @ApiModelProperty(name = "userPhone", required = false, example = "", notes = "学生手机号")
+    private String userPhone;
     @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "学生系别")
     private Integer organizationId;
     @ApiModelProperty(name = "credit", required = false, example = "", notes = "学分")
@@ -45,9 +45,10 @@ public class CreateCreditRequest implements Serializable {
     private String remark;
 
     public ErrorMessage check() {
-        if (null == userID && !StringUtils.hasLength(studentCode)) {
+        if (null == userId && !StringUtils.hasLength(userCode)) {
             return ErrorMessage.STUDENT_CODE_IS_NULL;
         }
+
         if (null == credit) {
             return ErrorMessage.CREDIT_IS_NULL;
         }

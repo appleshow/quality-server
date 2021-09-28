@@ -14,12 +14,12 @@ public class SearchCreditRequest extends PageableSearch {
     private Integer creditId;
     @ApiModelProperty(name = "campaignId", required = false, example = "", notes = "活动ID")
     private Integer campaignId;
-    @ApiModelProperty(name = "studentCode", required = false, example = "", notes = "学号")
-    private String studentCode;
-    @ApiModelProperty(name = "studentName", required = false, example = "", notes = "学生姓名")
-    private String studentName;
-    @ApiModelProperty(name = "studentGender", required = false, example = "", notes = "学生性别")
-    private String studentGender;
+    @ApiModelProperty(name = "userCode", required = false, example = "", notes = "学号")
+    private String userCode;
+    @ApiModelProperty(name = "userName", required = false, example = "", notes = "学生姓名")
+    private String userName;
+    @ApiModelProperty(name = "userGender", required = false, example = "", notes = "学生性别")
+    private String userGender;
     @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "学生系别")
     private Integer organizationId;
     @ApiModelProperty(name = "grade", required = false, example = "", notes = "学生班级")
@@ -44,15 +44,15 @@ public class SearchCreditRequest extends PageableSearch {
     public void init() {
         creditId = DataUtil.nvl(creditId, null);
         campaignId = DataUtil.nvl(campaignId, null);
-        studentGender = DataUtil.nvl(studentGender, null);
+        userGender = DataUtil.nvl(userGender, null);
         organizationId = DataUtil.nvl(organizationId, null);
         creditFrom = DataUtil.nvl(creditFrom, null);
         creditTo = DataUtil.nvl(creditTo, null);
         creditTimeFrom = DataUtil.nvl(creditTimeFrom, null);
         creditTimeTo = DataUtil.nvl(creditTimeTo, null);
         approvalType = DataUtil.nvl(approvalType, null);
-        studentCode = DataUtil.likeFormat(studentCode);
-        studentName = DataUtil.likeFormat(studentName);
+        userCode = DataUtil.likeFormat(userCode);
+        userName = DataUtil.likeFormat(userName);
         instructor = DataUtil.likeFormat(instructor);
         grade = DataUtil.likeFormat(grade);
         flag = DataUtil.nvl(flag, null);
