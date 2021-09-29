@@ -1,10 +1,7 @@
 package com.aps.quality.controller;
 
 import com.aps.quality.model.ResponseData;
-import com.aps.quality.model.credit.CreateCreditRequest;
-import com.aps.quality.model.credit.SearchCreditRequest;
-import com.aps.quality.model.credit.UpdateCreditRequest;
-import com.aps.quality.model.dto.CreditInfoDto;
+import com.aps.quality.model.credit.*;
 import com.aps.quality.service.credit.CreditService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -13,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -61,14 +59,28 @@ public class CreditController extends ExceptionController {
     @ApiOperation("分页查询学分")
     @PostMapping("pageable")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
-    public ResponseData<Page<CreditInfoDto>> findPageable(@RequestBody final SearchCreditRequest request) {
+    public ResponseData<Page<CreditReport>> findPageable(@RequestBody final SearchCreditRequest request) {
         return creditService.findPageable(request);
     }
 
     @ApiOperation("查询学分")
     @PostMapping("all")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
-    public ResponseData<List<CreditInfoDto>> find(@RequestBody final SearchCreditRequest request) {
+    public ResponseData<List<CreditReport>> find(@RequestBody final SearchCreditRequest request) {
         return creditService.find(request);
+    }
+
+    @ApiOperation("查询展开学分")
+    @PostMapping("all/sub")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<List<CreditReport>> findSub(@RequestBody final SearchCreditRequest request) {
+        return creditService.findSub(request);
+    }
+
+    @ApiOperation("上传材料")
+    @PostMapping("upload/file")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<UploadResponse> findSub(@RequestParam(value = "file") MultipartFile file) {
+        return creditService.upload(file);
     }
 }

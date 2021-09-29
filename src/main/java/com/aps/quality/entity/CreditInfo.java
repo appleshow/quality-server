@@ -42,7 +42,7 @@ public class CreditInfo implements Serializable {
     private Date creditTime;
     @Column(name = "instructor", nullable = true)
     private String instructor;
-    @Column(name = "atr1", nullable = true, length = 100)
+    @Column(name = "atr1", nullable = true, length = 1000)
     private String atr1;
 
     @Column(name = "atr2", nullable = true, length = 100)

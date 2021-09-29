@@ -311,9 +311,12 @@ public abstract class Const {
 
     @Getter
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    public enum CcStatus {
-        INVALID(0, "无效"),
-        NORMAL(1, "正常"),
+    public enum CreditStatus {
+        REJECT(5, "退回"),
+        DRAFT(10, "草稿"),
+        SUBMIT(20, "已提交"),
+        APPROVING(30, "审批中"),
+        APPROVED(40, "审批通过"),
         ;
 
         @ApiModelProperty(name = "code", required = false, example = "", notes = "代码")
@@ -321,7 +324,7 @@ public abstract class Const {
         @ApiModelProperty(name = "description", required = false, example = "", notes = "描述")
         private String description;
 
-        CcStatus(Integer code, String description) {
+        CreditStatus(Integer code, String description) {
             this.code = code;
             this.description = description;
         }
@@ -330,8 +333,8 @@ public abstract class Const {
             return null != code && this.code.equals(code);
         }
 
-        public static CcStatus findByCode(Integer code) {
-            Optional<CcStatus> status = Arrays.stream(CcStatus.values())
+        public static CreditStatus findByCode(Integer code) {
+            Optional<CreditStatus> status = Arrays.stream(CreditStatus.values())
                     .filter(d -> null != code && d.getCode().equals(code))
                     .findAny();
             if (status.isPresent()) {

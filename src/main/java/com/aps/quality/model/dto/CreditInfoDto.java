@@ -29,7 +29,7 @@ public class CreditInfoDto implements Serializable {
     private Date creditTime;
     @ApiModelProperty(name = "instructor", required = false, example = "", notes = "指导老师")
     private String instructor;
-    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "备用")
+    @ApiModelProperty(name = "atr1", required = false, example = "", notes = "退回原因")
     private String atr1;
     @ApiModelProperty(name = "atr2", required = false, example = "", notes = "备用")
     private String atr2;

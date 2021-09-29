@@ -1,11 +1,10 @@
 package com.aps.quality.service.credit;
 
 import com.aps.quality.model.ResponseData;
-import com.aps.quality.model.credit.CreateCreditRequest;
-import com.aps.quality.model.credit.SearchCreditRequest;
-import com.aps.quality.model.credit.UpdateCreditRequest;
+import com.aps.quality.model.credit.*;
 import com.aps.quality.model.dto.CreditInfoDto;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,7 +17,11 @@ public interface CreditService {
 
     ResponseData<Boolean> submit(Integer id);
 
-    ResponseData<Page<CreditInfoDto>> findPageable(SearchCreditRequest request);
+    ResponseData<Page<CreditReport>> findPageable(SearchCreditRequest request);
 
-    ResponseData<List<CreditInfoDto>> find(SearchCreditRequest request);
+    ResponseData<List<CreditReport>> find(SearchCreditRequest request);
+
+    ResponseData<List<CreditReport>> findSub(SearchCreditRequest request);
+
+    ResponseData<UploadResponse> upload(MultipartFile file);
 }
