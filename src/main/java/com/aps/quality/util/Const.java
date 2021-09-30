@@ -13,7 +13,8 @@ public abstract class Const {
 
     public static final String USER_ID_PREFIX = "#USER@";
     public static final String USER_TYPE_PREFIX = "#USERTYPE@";
-    public static final String USER_ORGANIZATION_PREFIX = "#USERORT@";
+    public static final String USER_ORGANIZATION_PREFIX = "#USERORGANIZATION@";
+    public static final String USER_ORGANIZATION_LINK_PREFIX = "#USERORGANIZATIONLINK@";
     public static final String CREATE_TIME = "createTime";
     public static final String DEFAULT_PASSWORD = "asdiop@963";
     public static final Integer DEFAULT_NUMBER_PER_PAGE = 10;
@@ -315,8 +316,8 @@ public abstract class Const {
         REJECT(5, "退回"),
         DRAFT(10, "草稿"),
         SUBMIT(20, "已提交"),
-        APPROVING(30, "审批中"),
-        APPROVED(40, "审批通过"),
+        APPROVING(30, "初审通过"),
+        APPROVED(40, "定审通过"),
         ;
 
         @ApiModelProperty(name = "code", required = false, example = "", notes = "代码")
@@ -466,6 +467,53 @@ public abstract class Const {
         public static MetadataType findByCode(String code) {
             Optional<MetadataType> status = Arrays.stream(MetadataType.values())
                     .filter(d -> null != code && d.getCode().equals(code))
+                    .findAny();
+            if (status.isPresent()) {
+                return status.get();
+            } else {
+                return null;
+            }
+        }
+    }
+
+    @Getter
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    public enum CampaignType {
+        SX("SX", "思想道德素质拓展"),
+        NL("NL", "能力素质拓展"),
+        YS("YS", "人文艺术素质拓展"),
+        SJ("SJ", "社会实践素质拓展"),
+        QT("QT", "其它"),
+        ;
+
+        @ApiModelProperty(name = "code", required = false, example = "", notes = "代码")
+        private String code;
+        @ApiModelProperty(name = "description", required = false, example = "", notes = "描述")
+        private String description;
+
+        CampaignType(String code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public boolean equalWithCode(String code) {
+            return null != code && this.code.equals(code);
+        }
+
+        public static CampaignType findByCode(String code) {
+            Optional<CampaignType> status = Arrays.stream(CampaignType.values())
+                    .filter(d -> null != code && d.getCode().equals(code))
+                    .findAny();
+            if (status.isPresent()) {
+                return status.get();
+            } else {
+                return null;
+            }
+        }
+
+        public static CampaignType findByDescription(String description) {
+            Optional<CampaignType> status = Arrays.stream(CampaignType.values())
+                    .filter(d -> null != description && d.getDescription().equals(description))
                     .findAny();
             if (status.isPresent()) {
                 return status.get();

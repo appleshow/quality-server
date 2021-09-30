@@ -4,6 +4,7 @@ import com.aps.quality.entity.CreditInfo;
 import com.aps.quality.entity.UserInfo;
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
+import com.aps.quality.model.dto.CreditInfoDto;
 import com.aps.quality.repository.CertificateInfoRepository;
 import com.aps.quality.repository.CreditApprovalInfoRepository;
 import com.aps.quality.repository.CreditInfoRepository;
@@ -13,8 +14,11 @@ import com.aps.quality.service.component.FileAction;
 import com.aps.quality.util.Const;
 import com.aps.quality.util.DataUtil;
 import com.aps.quality.util.ErrorMessage;
+import com.aps.quality.util.ExcelUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,11 +26,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -198,7 +210,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     }
 
     @Override
-    public ResponseData<UploadResponse> upload(MultipartFile file) {
+    public ResponseData<UploadResponse> uploadFile(MultipartFile file) {
         final String fileOriginalName = file.getOriginalFilename();
 
         log.info("call upload(): {}", fileOriginalName);
@@ -229,6 +241,123 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         } else {
             return new ResponseData<>(ErrorMessage.IMAGE_INVALID);
         }
+    }
+
+    @Override
+    public ResponseData<ImportResponse> importCredit(MultipartFile file) {
+        final ImportResponse response = new ImportResponse();
+        final List<ImportRequest> requestList = new ArrayList<>();
+        final int maxRows = 200;
+
+        final InputStream inputStream = ExcelUtil.getInputStream(file);
+        if (null == inputStream) {
+            return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+        }
+
+        try (final Workbook workbook = ExcelUtil.createWorkbook(inputStream, file.getOriginalFilename())) {
+            if (null == workbook) {
+                return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+            }
+            final Sheet sheet = workbook.getSheetAt(0);
+            if (null == sheet) {
+                return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+            }
+            response.init();
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            for (int row = 1; row <= maxRows; row++) {
+                final ImportRequest request = new ImportRequest();
+                request.setCampaignType(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
+                if (!StringUtils.hasLength(request.getCampaignType())) {
+                    continue;
+                }
+                if (null == Const.CampaignType.findByDescription(request.getCampaignType())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CAMPAIGN_TYPE_INVALID);
+                }
+                request.setCampaignType(Const.CampaignType.findByDescription(request.getCampaignType()).getCode());
+                request.setCampaignName(ExcelUtil.getCellFormatValue(sheet, row, 1).trim());
+                if (!StringUtils.hasLength(request.getCampaignName())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CAMPAIGN_NAME_NULL);
+                }
+                request.setUserCode(ExcelUtil.getCellFormatValue(sheet, row, 2).trim());
+                if (!StringUtils.hasLength(request.getUserCode())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_USER_CODE_NULL);
+                }
+                request.setUserName(ExcelUtil.getCellFormatValue(sheet, row, 3).trim());
+                if (!StringUtils.hasLength(request.getUserName())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_USER_NAME_NULL);
+                }
+                final String credit = ExcelUtil.getCellFormatValue(sheet, row, 4).trim();
+                if (!StringUtils.hasLength(credit)) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_NULL);
+                }
+                request.setCredit(new BigDecimal(credit));
+                final String creditDate = ExcelUtil.getCellValueAsString(sheet.getRow(row).getCell(5));
+                if (!StringUtils.hasLength(creditDate)) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_NULL);
+                }
+                try {
+                    request.setCreditTime(simpleDateFormat.parse(creditDate));
+                } catch (ParseException e) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_INVALID);
+                }
+
+                request.setInstructor(ExcelUtil.getCellFormatValue(sheet, row, 6).trim());
+                request.setRemark(ExcelUtil.getCellFormatValue(sheet, row, 7).trim());
+
+                requestList.add(request);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        if (requestList.isEmpty()) {
+            return new ResponseData(ErrorMessage.IMPORT_FILE_IS_EMPTY);
+        }
+        for (ImportRequest r : requestList) {
+            final UserInfo userInfo = userInfoRepository.findByUserCode(r.getUserCode()).orElse(null);
+            if (null == userInfo) {
+                if (!Const.UserType.CLASS.equals(DataUtil.getAuthorityUserType())) {
+                    return new ResponseData(ErrorMessage.USER_NOT_EXIST);
+                } else {
+                    r.setUserInfo(new UserInfo());
+
+                    r.getUserInfo().setUserCode(r.getUserCode());
+                    r.getUserInfo().setUserName(r.getUserName());
+                    r.getUserInfo().setUserType(Const.UserType.STUDENT);
+                    r.getUserInfo().setOrganizationId(DataUtil.getAuthorityOrganizationId());
+                    r.getUserInfo().setUserPassword(passwordEncoder.encode(r.getUserCode()));
+                    r.getUserInfo().setAtr1(DataUtil.getAuthorityOrganizationLink());
+                    r.getUserInfo().setStatus(1);
+
+                    userInfoRepository.save(r.getUserInfo());
+                }
+            } else {
+                r.setUserInfo(userInfo);
+            }
+        }
+
+        requestList.forEach(r -> {
+            final CreditInfo creditInfo = new CreditInfo();
+            creditInfo.setUserId(r.getUserInfo().getUserId());
+            creditInfo.setCampaignType(r.getCampaignType());
+            creditInfo.setCampaignName(r.getCampaignName());
+            creditInfo.setCredit(r.getCredit());
+            creditInfo.setCreditTime(r.getCreditTime());
+            creditInfo.setFlag(Const.NO);
+            creditInfo.setRemark(r.getRemark());
+            creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
+            if (null != creditInfo.getCreditTime()) {
+                final Calendar calendar = Calendar.getInstance();
+                calendar.setTime(creditInfo.getCreditTime());
+                creditInfo.setCreditYear(calendar.get(Calendar.YEAR));
+                creditInfo.setCreditMonth(calendar.get(Calendar.MONTH + 1));
+            }
+
+            creditInfoRepository.save(creditInfo);
+            response.setTotal(response.getTotal() + 1);
+        });
+
+        return new ResponseData<>(response);
     }
 
     private Integer createUser(String userCode, String userName, String userGender, String userPhone, Integer organizationId, String atr1) {

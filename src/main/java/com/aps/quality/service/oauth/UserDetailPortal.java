@@ -43,6 +43,7 @@ public class UserDetailPortal implements UserDetail {
             set.add(new SimpleGrantedAuthority(String.format("%s%d", Const.USER_ID_PREFIX, userInfo.getUserId())));
             set.add(new SimpleGrantedAuthority(String.format("%s%s", Const.USER_TYPE_PREFIX, userInfo.getUserType())));
             set.add(new SimpleGrantedAuthority(String.format("%s%d", Const.USER_ORGANIZATION_PREFIX, userInfo.getOrganizationId())));
+            set.add(new SimpleGrantedAuthority(String.format("%s%s", Const.USER_ORGANIZATION_LINK_PREFIX, userInfo.getAtr1())));
 
             return new User(code, userInfo.getUserPassword(), set);
         }

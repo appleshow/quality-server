@@ -80,7 +80,14 @@ public class CreditController extends ExceptionController {
     @ApiOperation("上传材料")
     @PostMapping("upload/file")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
-    public ResponseData<UploadResponse> findSub(@RequestParam(value = "file") MultipartFile file) {
-        return creditService.upload(file);
+    public ResponseData<UploadResponse> uploadFile(@RequestParam(value = "file") MultipartFile file) {
+        return creditService.uploadFile(file);
+    }
+
+    @ApiOperation("上传材料")
+    @PostMapping("import/file")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<ImportResponse> importCredit(@RequestParam(value = "file") MultipartFile file) {
+        return creditService.importCredit(file);
     }
 }

@@ -23,5 +23,9 @@ public interface CreditService {
 
     ResponseData<List<CreditReport>> findSub(SearchCreditRequest request);
 
-    ResponseData<UploadResponse> upload(MultipartFile file);
+    ResponseData<UploadResponse> uploadFile(MultipartFile file);
+
+    ResponseData<ImportResponse> importCredit(MultipartFile file);
+
+
 }

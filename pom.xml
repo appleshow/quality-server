@@ -18,6 +18,7 @@
         <oauth2-autoconfigure.version>2.1.2.RELEASE</oauth2-autoconfigure.version>
         <orika.version>1.5.4</orika.version>
         <io.springfox.version>2.10.5</io.springfox.version>
+        <poi-ooxml.version>3.17</poi-ooxml.version>
     </properties>
     <dependencies>
         <dependency>
@@ -92,6 +93,11 @@
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>
             <version>${orika.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi-ooxml.version}</version>
         </dependency>
 
         <!-- Test -->

@@ -82,6 +82,20 @@ public abstract class DataUtil {
                 .orElse(null);
     }
 
+    public static String getAuthorityOrganizationLink() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        return authentication.getAuthorities()
+                .stream()
+                .filter(g -> g.getAuthority().startsWith(Const.USER_ORGANIZATION_LINK_PREFIX))
+                .findFirst()
+                .map(g -> g.getAuthority().replace(Const.USER_ORGANIZATION_LINK_PREFIX, ""))
+                .orElse(null);
+    }
+
     public static String getAuthorityUserType() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
