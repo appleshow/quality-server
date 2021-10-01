@@ -53,6 +53,12 @@ public class UserInfo implements Serializable {
     @Column(name = "organization_id", nullable = false)
     private Integer organizationId;
 
+    @Column(name = "teacher_name", nullable = false)
+    private String teacherName;
+
+    @Column(name = "teacher_phone", nullable = false)
+    private String teacherPhone;
+
     @Column(name = "sso_id", nullable = true, updatable = false)
     private String ssoId;
 

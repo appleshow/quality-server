@@ -28,6 +28,10 @@ public class UserInfoDto implements Serializable {
     private String userType;
     @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
     private Integer organizationId;
+    @ApiModelProperty(name = "teacherName", required = false, example = "", notes = "班主任老师")
+    private String teacherName;
+    @ApiModelProperty(name = "teacherPhone", required = false, example = "", notes = "班主任手机号")
+    private String teacherPhone;
     @ApiModelProperty(name = "ssoId", required = false, example = "", notes = "SSO ID")
     private String ssoId;
     @ApiModelProperty(name = "ssoType", required = false, example = "", notes = "SSO类型")

@@ -1,5 +1,6 @@
 package com.aps.quality.service.component;
 
+import com.aps.quality.model.credit.RemoveUploadRequest;
 import com.aps.quality.util.Const;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -51,5 +52,15 @@ public class FileActionLocal extends FileActionBase {
             log.error("Write MultipartFile to file got an error: ", e);
             return null;
         }
+    }
+
+    @Override
+    public boolean remove(RemoveUploadRequest request) {
+        final File file = new File(String.format("%s/%s", System.getProperty("user.dir"), request.getStorageFileName()));
+
+        if (file.exists()) {
+            file.delete();
+        }
+        return true;
     }
 }

@@ -13,6 +13,8 @@ public interface CreditReport {
 
     Integer getSubmit();
 
+    String getCreditIds();
+
     Integer getCreditId();
 
     String getCampaignName();

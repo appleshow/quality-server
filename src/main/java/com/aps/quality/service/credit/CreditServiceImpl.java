@@ -1,10 +1,10 @@
 package com.aps.quality.service.credit;
 
+import com.aps.quality.entity.CertificateInfo;
 import com.aps.quality.entity.CreditInfo;
 import com.aps.quality.entity.UserInfo;
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
-import com.aps.quality.model.dto.CreditInfoDto;
 import com.aps.quality.repository.CertificateInfoRepository;
 import com.aps.quality.repository.CreditApprovalInfoRepository;
 import com.aps.quality.repository.CreditInfoRepository;
@@ -16,7 +16,6 @@ import com.aps.quality.util.DataUtil;
 import com.aps.quality.util.ErrorMessage;
 import com.aps.quality.util.ExcelUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.BeanUtils;
@@ -34,11 +33,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -85,7 +81,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             final Calendar calendar = Calendar.getInstance();
             calendar.setTime(creditInfo.getCreditTime());
             creditInfo.setCreditYear(calendar.get(Calendar.YEAR));
-            creditInfo.setCreditMonth(calendar.get(Calendar.MONTH + 1));
+            creditInfo.setCreditMonth(calendar.get(Calendar.MONTH) + 1);
         }
 
         log.info("call creditInfoRepository.save()");
@@ -126,7 +122,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             final Calendar calendar = Calendar.getInstance();
             calendar.setTime(creditInfo.getCreditTime());
             creditInfo.setCreditYear(calendar.get(Calendar.YEAR));
-            creditInfo.setCreditMonth(calendar.get(Calendar.MONTH + 1));
+            creditInfo.setCreditMonth(calendar.get(Calendar.MONTH) + 1);
         }
 
         log.info("call creditInfoRepository.save()");
@@ -219,28 +215,76 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             return new ResponseData<>(check);
         }
 
-        byte[] imageBytes = null;
-        try (final InputStream inputStream = file.getInputStream()) {
-            imageBytes = new byte[inputStream.available()];
-            inputStream.read(imageBytes);
-        } catch (Exception e) {
-            log.error("Call imageFile.getInputStream got an error: ", e);
-        }
-        if (null != imageBytes) {
-            final String imageFileName = fileActions.stream()
-                    .filter(a -> a.isMatch(fileActionChannel))
-                    .findAny()
-                    .map(a -> a.saveFromFile(file, Const.ContentType.IMAGE_JPG.getCode()))
-                    .orElse(null);
+        final String storageFileName = fileActions.stream()
+                .filter(a -> a.isMatch(fileActionChannel))
+                .findAny()
+                .map(a -> a.saveFromFile(file, Const.ContentType.IMAGE_JPG.getCode()))
+                .orElse(null);
 
-            if (null == imageFileName) {
-                return new ResponseData<>(ErrorMessage.IMAGE_INVALID);
-            }
-
-            return new ResponseData<>(new UploadResponse(fileOriginalName, imageFileName));
-        } else {
+        if (null == storageFileName) {
             return new ResponseData<>(ErrorMessage.IMAGE_INVALID);
         }
+
+        return new ResponseData<>(new UploadResponse(fileOriginalName, storageFileName));
+
+    }
+
+    @Override
+    public ResponseData<Boolean> removeUploadFile(RemoveUploadRequest request) {
+        log.info("call removeUploadFile(): {}", request);
+        fileActions.stream()
+                .filter(a -> a.isMatch(fileActionChannel))
+                .findAny()
+                .map(a -> a.remove(request))
+                .orElse(true);
+
+        return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> useUploadFile(List<UseUploadRequest> requests) {
+        log.info("call useUploadFile(): {}", requests);
+        if (null == requests) {
+            return new ResponseData<>(true);
+        }
+        requests.forEach(request -> {
+            if (null == request.getFiles() || request.getFiles().length <= 0) {
+            } else {
+                if (StringUtils.hasLength(request.getCreditIds())) {
+                    final String[] creditIds = request.getCreditIds().split(",");
+                    for (String creditIdStr : creditIds) {
+                        final Integer creditId = Integer.parseInt(creditIdStr);
+                        certificateInfoRepository.findByCreditId(creditId).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
+                        for (String file : request.getFiles()) {
+                            final String[] findType = file.split("\\.");
+
+                            final CertificateInfo certificateInfo = new CertificateInfo();
+                            certificateInfo.setCreditId(creditId);
+                            certificateInfo.setType(findType[findType.length - 1]);
+                            certificateInfo.setUrl(file);
+                            certificateInfo.setStatus(1);
+
+                            certificateInfoRepository.save(certificateInfo);
+                        }
+                    }
+                } else if (null != request.getCreditId()) {
+                    certificateInfoRepository.findByCreditId(request.getCreditId()).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
+                    for (String file : request.getFiles()) {
+                        final String[] findType = file.split(".");
+                        final CertificateInfo certificateInfo = new CertificateInfo();
+
+                        certificateInfo.setCreditId(request.getCreditId());
+                        certificateInfo.setType(findType[findType.length - 1]);
+                        certificateInfo.setUrl(file);
+                        certificateInfo.setStatus(1);
+
+                        certificateInfoRepository.save(certificateInfo);
+                    }
+                }
+            }
+        });
+
+        return new ResponseData<>(true);
     }
 
     @Override
@@ -404,12 +448,12 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         }
     }
 
-    private ErrorMessage checkUploadImage(final MultipartFile imageFile) {
-        final String fileName = imageFile.getOriginalFilename();
-        if (fileName == null || !fileName.matches("^.+(.JPEG|.jpeg|.JPG|.jpg|.BMP|.bmp|.PNG|.png)$")) {
+    private ErrorMessage checkUploadImage(final MultipartFile file) {
+        final String fileName = file.getOriginalFilename();
+        if (fileName == null || !fileName.matches("^.+(.JPEG|.jpeg|.JPG|.jpg|.BMP|.bmp|.PNG|.png|.PDF|.pdf)$")) {
             return ErrorMessage.IMAGE_TYPE_NOT_SUPPORT;
         }
-        if (imageFile.getSize() > fileSize * 1024 * 1024) {
+        if (file.getSize() > fileSize * 1024 * 1024) {
             return ErrorMessage.IMAGE_SIZE_NOT_SUPPORT;
         }
 

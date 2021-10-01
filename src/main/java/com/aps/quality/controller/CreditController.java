@@ -84,7 +84,21 @@ public class CreditController extends ExceptionController {
         return creditService.uploadFile(file);
     }
 
-    @ApiOperation("上传材料")
+    @ApiOperation("删除已上传材料")
+    @PutMapping("remove/file")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> removeUploadFile(@RequestBody RemoveUploadRequest request) {
+        return creditService.removeUploadFile(request);
+    }
+
+    @ApiOperation("确认上传材料")
+    @PostMapping("use/file")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> useUploadFile(@RequestBody List<UseUploadRequest> requests) {
+        return creditService.useUploadFile(requests);
+    }
+
+    @ApiOperation("导入学分")
     @PostMapping("import/file")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<ImportResponse> importCredit(@RequestParam(value = "file") MultipartFile file) {

@@ -1,7 +1,6 @@
 package com.aps.quality.model.credit;
 
 import com.aps.quality.util.ErrorMessage;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.util.StringUtils;
@@ -11,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class UpdateCreditRequest implements Serializable {
     @ApiModelProperty(name = "creditId", required = false, example = "", notes = "ID")
     private Integer creditId;

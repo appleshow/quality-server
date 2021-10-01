@@ -25,6 +25,10 @@ public interface CreditService {
 
     ResponseData<UploadResponse> uploadFile(MultipartFile file);
 
+    ResponseData<Boolean> removeUploadFile(RemoveUploadRequest request);
+
+    ResponseData<Boolean> useUploadFile(List<UseUploadRequest> requests);
+
     ResponseData<ImportResponse> importCredit(MultipartFile file);
 
 

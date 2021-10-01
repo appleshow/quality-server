@@ -24,6 +24,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
@@ -64,6 +65,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
@@ -107,6 +109,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
@@ -141,7 +144,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
-                    "  SELECT 0 AS creditId " +
+                    "  SELECT ci.credit_id AS creditId " +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
@@ -163,7 +166,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
-                    "         0 AS creditId, " +
+                    "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         NULL AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
                     "         NULL AS userId, " +
@@ -221,7 +225,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
-                    "         0 AS creditId, " +
+                    "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         NULL AS creditId, " +
                     "         NULL AS campaignName, " +
                     "         NULL AS campaignType, " +
                     "         MIN(ci.user_id) AS userId, " +
@@ -279,7 +284,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
-                    "         0 AS creditId, " +
+                    "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         NULL AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
                     "         MIN(ui.user_id) AS userId, " +

@@ -26,6 +26,10 @@ public class UpdateUserRequest implements Serializable {
     private String userType;
     @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "组织ID")
     private Integer organizationId;
+    @ApiModelProperty(name = "teacherName", required = false, example = "", notes = "班主任老师")
+    private String teacherName;
+    @ApiModelProperty(name = "teacherPhone", required = false, example = "", notes = "班主任手机号")
+    private String teacherPhone;
     @ApiModelProperty(name = "atr1", required = false, example = "", notes = "用户组织链路")
     private String atr1;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
