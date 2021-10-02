@@ -24,6 +24,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         ci.atr5 AS certificate, " +
                     "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
@@ -65,6 +66,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         ci.atr5 AS certificate, " +
                     "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
@@ -109,6 +111,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  SELECT UUID() AS guid, " +
                     "         1 AS total, " +
                     "         IF(ci.status<20,0,1) AS submit, " +
+                    "         ci.atr5 AS certificate, " +
                     "         '' AS creditIds, " +
                     "         ci.credit_id AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
@@ -167,6 +170,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
                     "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         SUM(IF(ci.atr5 IS NULL,0,ci.atr5)) AS certificate, " +
                     "         NULL AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +
@@ -226,6 +230,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
                     "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         SUM(IF(ci.atr5 IS NULL,0,ci.atr5)) AS certificate, " +
                     "         NULL AS creditId, " +
                     "         NULL AS campaignName, " +
                     "         NULL AS campaignType, " +
@@ -285,6 +290,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         COUNT(ci.credit_id) AS total, " +
                     "         SUM(IF(ci.status<20,0,1)) AS submit, " +
                     "         GROUP_CONCAT(ci.credit_id) AS creditIds, " +
+                    "         SUM(IF(ci.atr5 IS NULL,0,ci.atr5)) AS certificate, " +
                     "         NULL AS creditId, " +
                     "         ci.campaign_name AS campaignName, " +
                     "         ci.campaign_type AS campaignType, " +

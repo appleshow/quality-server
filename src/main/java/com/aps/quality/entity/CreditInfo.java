@@ -55,7 +55,7 @@ public class CreditInfo implements Serializable {
     private String atr4;
 
     @Column(name = "atr5", nullable = true, length = 100)
-    private String atr5;
+    private Integer atr5;
 
     @Column(name = "status", nullable = true)
     private Integer status;

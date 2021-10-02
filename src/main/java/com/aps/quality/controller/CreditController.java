@@ -2,6 +2,7 @@ package com.aps.quality.controller;
 
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
+import com.aps.quality.model.dto.CertificateInfoDto;
 import com.aps.quality.service.credit.CreditService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -47,13 +48,10 @@ public class CreditController extends ExceptionController {
     }
 
     @ApiOperation("提交学分")
-    @PutMapping("{id}/submit")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", required = true, example = "学分ID")
-    })
+    @PutMapping("submit")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
-    public ResponseData<Boolean> submit(@PathVariable final Integer id) {
-        return creditService.submit(id);
+    public ResponseData<Boolean> submit(@RequestBody List<SubmitRequest> requests) {
+        return creditService.submit(requests);
     }
 
     @ApiOperation("分页查询学分")
@@ -103,5 +101,12 @@ public class CreditController extends ExceptionController {
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<ImportResponse> importCredit(@RequestParam(value = "file") MultipartFile file) {
         return creditService.importCredit(file);
+    }
+
+    @ApiOperation("按学分记录ID查询证明材料")
+    @GetMapping("certificate/{creditId}/by/creditId")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<List<CertificateInfoDto>> findSubCertification(@PathVariable("creditId") Integer creditId) {
+        return creditService.findSubCertification(creditId);
     }
 }

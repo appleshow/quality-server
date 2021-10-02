@@ -2,6 +2,7 @@ package com.aps.quality.repository;
 
 import com.aps.quality.entity.UserInfo;
 import com.aps.quality.model.user.SearchUserRequest;
+import jdk.nashorn.internal.ir.Optimistic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,4 +56,10 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Integer>,
             "  AND (:#{#search.status} IS NULL OR a.status = :#{#search.status}) " +
             "  AND (:#{#search.organizationId} IS NULL OR a.organizationId IN (SELECT b.childOrganizationId FROM OrganizationMappingInfo b WHERE b.fatherOrganizationId = :#{#search.organizationId})) ")
     List<UserInfo> find(@Param("search") SearchUserRequest search);
+
+    @Query("SELECT a.userId FROM UserInfo a " +
+            "WHERE a.status = 1 " +
+            "  AND a.userType IN ('MASTER','YLC_L1','FACULTY') " +
+            "  AND a.organizationId IN (SELECT b.fatherOrganizationId FROM OrganizationMappingInfo b WHERE b.childOrganizationId = :organizationId) ")
+    Optional<List<Integer>> findApprovalUserId(@Param("organizationId") Integer organizationId);
 }

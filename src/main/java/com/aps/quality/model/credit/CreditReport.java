@@ -13,6 +13,8 @@ public interface CreditReport {
 
     Integer getSubmit();
 
+    Integer getCertificate();
+
     String getCreditIds();
 
     Integer getCreditId();

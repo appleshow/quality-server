@@ -1,10 +1,10 @@
 package com.aps.quality.service.credit;
 
-import com.aps.quality.entity.CertificateInfo;
-import com.aps.quality.entity.CreditInfo;
-import com.aps.quality.entity.UserInfo;
+import com.aps.quality.entity.*;
+import com.aps.quality.mapper.CertificateInfoMapper;
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
+import com.aps.quality.model.dto.CertificateInfoDto;
 import com.aps.quality.repository.CertificateInfoRepository;
 import com.aps.quality.repository.CreditApprovalInfoRepository;
 import com.aps.quality.repository.CreditInfoRepository;
@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     private CertificateInfoRepository certificateInfoRepository;
     @Resource
     private UserInfoRepository userInfoRepository;
+
+    @Resource
+    private CertificateInfoMapper certificateInfoMapper;
 
     @Resource
     private PasswordEncoder passwordEncoder;
@@ -74,8 +78,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         }
 
         final CreditInfo creditInfo = new CreditInfo();
-        request.setAtr1(null);
         BeanUtils.copyProperties(request, creditInfo, DataUtil.getNullPropertyNames(request));
+        creditInfo.setAtr2(request.getUserCode());
         creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
         if (null != creditInfo.getCreditTime()) {
             final Calendar calendar = Calendar.getInstance();
@@ -115,8 +119,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                     request.getUserPhone(), request.getOrganizationId(), request.getAtr1()));
         }
 
-        request.setAtr1(null);
         BeanUtils.copyProperties(request, creditInfo, DataUtil.getNullPropertyNames(request));
+        creditInfo.setAtr2(request.getUserCode());
         creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
         if (null != creditInfo.getCreditTime()) {
             final Calendar calendar = Calendar.getInstance();
@@ -155,7 +159,30 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     }
 
     @Override
-    public ResponseData<Boolean> submit(final Integer id) {
+    public ResponseData<Boolean> submit(final List<SubmitRequest> requests) {
+        log.info("call submit(): {}", requests);
+        if (null == requests) {
+            return new ResponseData<>(true);
+        }
+        requests.forEach(request -> {
+            final List<Integer> creditIdList = new ArrayList<>();
+
+            if (StringUtils.hasLength(request.getCreditIds())) {
+                final String[] creditIds = request.getCreditIds().split(",");
+                Arrays.stream(creditIds).forEach(creditId -> creditIdList.add(Integer.parseInt(creditId)));
+            } else if (null != request.getCreditId()) {
+                creditIdList.add(request.getCreditId());
+            }
+
+            creditIdList.forEach(creditId -> {
+                final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
+                if (null != creditInfo && Const.CreditStatus.canBeSubmitted(creditInfo.getStatus())) {
+                    creditInfo.setStatus(Const.CreditStatus.SUBMIT.getCode());
+
+                    creditInfoRepository.save(creditInfo);
+                }
+            });
+        });
 
         return new ResponseData<>(true);
     }
@@ -250,37 +277,35 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         requests.forEach(request -> {
             if (null == request.getFiles() || request.getFiles().length <= 0) {
             } else {
+                final List<Integer> creditIdList = new ArrayList<>();
+
                 if (StringUtils.hasLength(request.getCreditIds())) {
                     final String[] creditIds = request.getCreditIds().split(",");
-                    for (String creditIdStr : creditIds) {
-                        final Integer creditId = Integer.parseInt(creditIdStr);
-                        certificateInfoRepository.findByCreditId(creditId).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
-                        for (String file : request.getFiles()) {
-                            final String[] findType = file.split("\\.");
-
-                            final CertificateInfo certificateInfo = new CertificateInfo();
-                            certificateInfo.setCreditId(creditId);
-                            certificateInfo.setType(findType[findType.length - 1]);
-                            certificateInfo.setUrl(file);
-                            certificateInfo.setStatus(1);
-
-                            certificateInfoRepository.save(certificateInfo);
-                        }
-                    }
+                    Arrays.stream(creditIds).forEach(creditId -> creditIdList.add(Integer.parseInt(creditId)));
                 } else if (null != request.getCreditId()) {
-                    certificateInfoRepository.findByCreditId(request.getCreditId()).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
-                    for (String file : request.getFiles()) {
-                        final String[] findType = file.split(".");
-                        final CertificateInfo certificateInfo = new CertificateInfo();
+                    creditIdList.add(request.getCreditId());
+                }
 
-                        certificateInfo.setCreditId(request.getCreditId());
+                creditIdList.forEach(creditId -> {
+                    certificateInfoRepository.findByCreditId(creditId).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
+                    for (String file : request.getFiles()) {
+                        final String[] findType = file.split("\\.");
+
+                        final CertificateInfo certificateInfo = new CertificateInfo();
+                        certificateInfo.setCreditId(creditId);
                         certificateInfo.setType(findType[findType.length - 1]);
                         certificateInfo.setUrl(file);
                         certificateInfo.setStatus(1);
 
                         certificateInfoRepository.save(certificateInfo);
                     }
-                }
+                    final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
+                    if (null != creditInfo) {
+                        creditInfo.setAtr5(request.getFiles().length);
+
+                        creditInfoRepository.save(creditInfo);
+                    }
+                });
             }
         });
 
@@ -402,6 +427,14 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         });
 
         return new ResponseData<>(response);
+    }
+
+    @Override
+    public ResponseData<List<CertificateInfoDto>> findSubCertification(Integer creditId) {
+        log.info("call findSubCertification(): {}", creditId);
+        final List<CertificateInfo> certificateInfoList = certificateInfoRepository.findByCreditId(creditId).orElse(new ArrayList<>());
+
+        return new ResponseData<>(certificateInfoMapper.mapAsList(certificateInfoList, CertificateInfoDto.class));
     }
 
     private Integer createUser(String userCode, String userName, String userGender, String userPhone, Integer organizationId, String atr1) {

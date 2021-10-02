@@ -2,6 +2,7 @@ package com.aps.quality.service.credit;
 
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
+import com.aps.quality.model.dto.CertificateInfoDto;
 import com.aps.quality.model.dto.CreditInfoDto;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,7 @@ public interface CreditService {
 
     ResponseData<Boolean> delete(Integer id);
 
-    ResponseData<Boolean> submit(Integer id);
+    ResponseData<Boolean> submit(List<SubmitRequest> requests);
 
     ResponseData<Page<CreditReport>> findPageable(SearchCreditRequest request);
 
@@ -31,5 +32,5 @@ public interface CreditService {
 
     ResponseData<ImportResponse> importCredit(MultipartFile file);
 
-
+    ResponseData<List<CertificateInfoDto>> findSubCertification(Integer creditId);
 }

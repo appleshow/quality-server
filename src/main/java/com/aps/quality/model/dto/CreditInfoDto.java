@@ -38,7 +38,7 @@ public class CreditInfoDto implements Serializable {
     @ApiModelProperty(name = "atr4", required = false, example = "", notes = "备用")
     private String atr4;
     @ApiModelProperty(name = "atr5", required = false, example = "", notes = "备用")
-    private String atr5;
+    private Integer atr5;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
     private String flag;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态。0 无效（取消）， 1 有效")

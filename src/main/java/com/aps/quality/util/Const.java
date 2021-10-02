@@ -344,6 +344,17 @@ public abstract class Const {
                 return null;
             }
         }
+
+        public static boolean canBeSubmitted(Integer status) {
+            if (null == status) {
+                return false;
+            }
+            if (SUBMIT.getCode().compareTo(status) > 0) {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     @Getter
