@@ -41,6 +41,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.instructor AS instructor, " +
                     "         ci.atr1 AS rejectReason, " +
                     "         ci.atr2 AS rejectBy, " +
+                    "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
                     "         ci.create_by AS createBy, " +
@@ -49,6 +50,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -83,6 +86,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.instructor AS instructor, " +
                     "         ci.atr1 AS rejectReason, " +
                     "         ci.atr2 AS rejectBy, " +
+                    "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
                     "         ci.create_by AS createBy, " +
@@ -91,9 +95,10 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userId}),          1,ui.user_id = :#{#search.userId}) " +
-                    "    AND IF(ISNULL(:#{#search.campaignTypeFix}), 1,ci.campaign_type = :#{#search.campaignTypeFix}) " +
-                    "    AND IF(ISNULL(:#{#search.campaignNameFix}), 1,ci.campaign_name = :#{#search.campaignNameFix}) " +
+                    "    AND IF(ISNULL(:#{#search.creditIds}),       1,ci.credit_id IN :#{#search.creditIds}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -128,6 +133,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.instructor AS instructor, " +
                     "         ci.atr1 AS rejectReason, " +
                     "         ci.atr2 AS rejectBy, " +
+                    "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
                     "         ci.create_by AS createBy, " +
@@ -136,6 +142,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -152,6 +160,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -186,6 +196,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS instructor, " +
                     "         NULL AS rejectReason, " +
                     "         NULL AS rejectBy, " +
+                    "         NULL AS rejectUserType, " +
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
@@ -194,6 +205,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -211,6 +224,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -246,6 +261,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS instructor, " +
                     "         NULL AS rejectReason, " +
                     "         NULL AS rejectBy, " +
+                    "         NULL AS rejectUserType, " +
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
@@ -254,6 +270,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -271,6 +289,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -306,6 +326,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS instructor, " +
                     "         NULL AS rejectReason, " +
                     "         NULL AS rejectBy, " +
+                    "         NULL AS rejectUserType, " +
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
@@ -314,6 +335,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
@@ -331,6 +354,8 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
+                    "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +

@@ -79,7 +79,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
         final CreditInfo creditInfo = new CreditInfo();
         BeanUtils.copyProperties(request, creditInfo, DataUtil.getNullPropertyNames(request));
-        creditInfo.setAtr2(request.getUserCode());
+        creditInfo.setAtr1(null);
         creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
         if (null != creditInfo.getCreditTime()) {
             final Calendar calendar = Calendar.getInstance();
@@ -120,7 +120,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         }
 
         BeanUtils.copyProperties(request, creditInfo, DataUtil.getNullPropertyNames(request));
-        creditInfo.setAtr2(request.getUserCode());
+        creditInfo.setAtr1(null);
         creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
         if (null != creditInfo.getCreditTime()) {
             final Calendar calendar = Calendar.getInstance();
@@ -177,12 +177,104 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditIdList.forEach(creditId -> {
                 final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
                 if (null != creditInfo && Const.CreditStatus.canBeSubmitted(creditInfo.getStatus())) {
+                    creditInfo.setAtr1(null);
+                    creditInfo.setAtr2(null);
+                    creditInfo.setAtr3(null);
                     creditInfo.setStatus(Const.CreditStatus.SUBMIT.getCode());
 
                     creditInfoRepository.save(creditInfo);
                 }
             });
         });
+
+        return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> reject(RejectRequest request) {
+        log.info("call reject(): {}", request);
+        if (!Const.UserType.canBeApprove(DataUtil.getAuthorityUserType())) {
+            return new ResponseData<>(ErrorMessage.INSUFFICIENT_PERMISSIONS);
+        }
+        if (null == request.getRequests()) {
+            return new ResponseData<>(true);
+        }
+
+        request.getRequests().forEach(r -> {
+            final List<Integer> creditIdList = new ArrayList<>();
+
+            if (StringUtils.hasLength(r.getCreditIds())) {
+                final String[] creditIds = r.getCreditIds().split(",");
+                Arrays.stream(creditIds).forEach(creditId -> creditIdList.add(Integer.parseInt(creditId)));
+            } else if (null != r.getCreditId()) {
+                creditIdList.add(r.getCreditId());
+            }
+
+            creditIdList.forEach(creditId -> {
+                final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
+                final Integer creditStatus = creditInfo.getStatus();
+                if (null != creditInfo && Const.CreditStatus.canBeRejected(creditInfo.getStatus())) {
+                    creditInfo.setStatus(Const.CreditStatus.REJECT.getCode());
+                    creditInfo.setAtr1(request.getReason());
+                    creditInfo.setAtr2(DataUtil.getAuthorityUserName());
+                    creditInfo.setAtr3(DataUtil.getAuthorityUserType());
+                    creditInfoRepository.save(creditInfo);
+
+                    final CreditApprovalInfo creditApprovalInfo = new CreditApprovalInfo();
+                    creditApprovalInfo.setCreditId(creditId);
+                    creditApprovalInfo.setUserId(DataUtil.getAuthorityUserId());
+                    creditApprovalInfo.setType(creditInfo.getStatus());
+                    creditApprovalInfo.setFlag(Const.YES);
+                    creditApprovalInfo.setStatus(creditStatus);
+                    creditApprovalInfo.setAtr1(request.getReason());
+                    creditApprovalInfoRepository.save(creditApprovalInfo);
+                }
+            });
+        });
+
+        return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> approve(List<SubmitRequest> requests) {
+        log.info("call approve():", requests);
+        final String userType = DataUtil.getAuthorityUserType();
+
+        if (!Const.UserType.canBeApprove(userType)) {
+            return new ResponseData<>(ErrorMessage.INSUFFICIENT_PERMISSIONS);
+        }
+        if (null == requests) {
+            return new ResponseData<>(true);
+        }
+
+        requests.forEach(r -> {
+            final List<Integer> creditIdList = new ArrayList<>();
+
+            if (StringUtils.hasLength(r.getCreditIds())) {
+                final String[] creditIds = r.getCreditIds().split(",");
+                Arrays.stream(creditIds).forEach(creditId -> creditIdList.add(Integer.parseInt(creditId)));
+            } else if (null != r.getCreditId()) {
+                creditIdList.add(r.getCreditId());
+            }
+
+            creditIdList.forEach(creditId -> {
+                final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
+                final Integer creditStatus = creditInfo.getStatus();
+                if (null != creditInfo && Const.CreditStatus.canBeRejected(creditInfo.getStatus())) {
+                    creditInfo.setStatus(Const.UserType.getCreditStatus(userType).getCode());
+                    creditInfoRepository.save(creditInfo);
+
+                    final CreditApprovalInfo creditApprovalInfo = new CreditApprovalInfo();
+                    creditApprovalInfo.setCreditId(creditId);
+                    creditApprovalInfo.setUserId(DataUtil.getAuthorityUserId());
+                    creditApprovalInfo.setType(creditInfo.getStatus());
+                    creditApprovalInfo.setFlag(Const.YES);
+                    creditApprovalInfo.setStatus(creditStatus);
+                    creditApprovalInfoRepository.save(creditApprovalInfo);
+                }
+            });
+        });
+
 
         return new ResponseData<>(true);
     }
@@ -277,34 +369,39 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         requests.forEach(request -> {
             if (null == request.getFiles() || request.getFiles().length <= 0) {
             } else {
-                final List<Integer> creditIdList = new ArrayList<>();
+                final List<CreditInfo> creditInfoList = new ArrayList<>();
 
                 if (StringUtils.hasLength(request.getCreditIds())) {
                     final String[] creditIds = request.getCreditIds().split(",");
-                    Arrays.stream(creditIds).forEach(creditId -> creditIdList.add(Integer.parseInt(creditId)));
+                    Arrays.stream(creditIds).forEach(creditId -> creditInfoRepository.findById(Integer.parseInt(creditId)).ifPresent(c -> {
+                        if (Const.CreditStatus.SUBMIT.getCode().compareTo(c.getStatus()) > 0) {
+                            creditInfoList.add(c);
+                        }
+                    }));
                 } else if (null != request.getCreditId()) {
-                    creditIdList.add(request.getCreditId());
+                    creditInfoRepository.findById(request.getCreditId()).ifPresent(c -> {
+                        if (Const.CreditStatus.SUBMIT.getCode().compareTo(c.getStatus()) > 0) {
+                            creditInfoList.add(c);
+                        }
+                    });
                 }
 
-                creditIdList.forEach(creditId -> {
-                    certificateInfoRepository.findByCreditId(creditId).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
+                creditInfoList.forEach(creditInfo -> {
+                    certificateInfoRepository.findByCreditId(creditInfo.getCreditId()).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
                     for (String file : request.getFiles()) {
                         final String[] findType = file.split("\\.");
 
                         final CertificateInfo certificateInfo = new CertificateInfo();
-                        certificateInfo.setCreditId(creditId);
+                        certificateInfo.setCreditId(creditInfo.getCreditId());
                         certificateInfo.setType(findType[findType.length - 1]);
                         certificateInfo.setUrl(file);
                         certificateInfo.setStatus(1);
 
                         certificateInfoRepository.save(certificateInfo);
                     }
-                    final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
-                    if (null != creditInfo) {
-                        creditInfo.setAtr5(request.getFiles().length);
 
-                        creditInfoRepository.save(creditInfo);
-                    }
+                    creditInfo.setAtr5(request.getFiles().length);
+                    creditInfoRepository.save(creditInfo);
                 });
             }
         });

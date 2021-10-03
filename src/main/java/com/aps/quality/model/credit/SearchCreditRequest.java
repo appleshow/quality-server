@@ -9,16 +9,14 @@ import java.util.Date;
 
 @Data
 public class SearchCreditRequest extends PageableSearch {
+    @ApiModelProperty(name = "creditIds", required = false, example = "", notes = "学分ID列表")
+    private Integer[] creditIds;
     @ApiModelProperty(name = "userId", required = false, example = "", notes = "用户ID")
     private Integer userId;
     @ApiModelProperty(name = "campaignType", required = false, example = "", notes = "项目类型")
     private String campaignType;
-    @ApiModelProperty(name = "campaignTypeFix", required = false, example = "", notes = "固定项目类型")
-    private String campaignTypeFix;
     @ApiModelProperty(name = "campaignName", required = false, example = "", notes = "项目名称")
     private String campaignName;
-    @ApiModelProperty(name = "campaignNameFix", required = false, example = "", notes = "固定项目名称")
-    private String campaignNameFix;
     @ApiModelProperty(name = "groupByCampaign", required = false, example = "", notes = "是否按项目分组")
     private boolean groupByCampaign;
     @ApiModelProperty(name = "groupByUser", required = false, example = "", notes = "是否按用户分组")
@@ -39,15 +37,18 @@ public class SearchCreditRequest extends PageableSearch {
     private String instructor;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态")
     private Integer status;
+    @ApiModelProperty(name = "statusFrom", required = true, example = "1", notes = "状态起")
+    private Integer statusFrom;
+    @ApiModelProperty(name = "statusTo", required = true, example = "1", notes = "状态止")
+    private Integer statusTo;
     @ApiModelProperty(name = "createBy", required = false, example = "", notes = "创建人")
     private String createBy;
 
     public void init() {
+        creditIds = DataUtil.nvl(creditIds, null);
         userId = DataUtil.nvl(userId, null);
         campaignType = DataUtil.nvl(campaignType, null);
-        campaignTypeFix = DataUtil.nvl(campaignTypeFix, null);
         campaignName = DataUtil.likeFormat(campaignName);
-        campaignNameFix = DataUtil.nvl(campaignNameFix, null);
         userCode = DataUtil.nvl(userCode, null);
         userName = DataUtil.likeFormat(userName);
         userGender = DataUtil.nvl(userGender, null);

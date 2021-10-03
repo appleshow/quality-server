@@ -54,6 +54,20 @@ public class CreditController extends ExceptionController {
         return creditService.submit(requests);
     }
 
+    @ApiOperation("退回学分")
+    @PutMapping("reject")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> reject(@RequestBody RejectRequest request) {
+        return creditService.reject(request);
+    }
+
+    @ApiOperation("审批学分")
+    @PutMapping("approve")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> approve(@RequestBody List<SubmitRequest> requests) {
+        return creditService.approve(requests);
+    }
+
     @ApiOperation("分页查询学分")
     @PostMapping("pageable")
     @PreAuthorize("hasAnyAuthority('PORTAL')")

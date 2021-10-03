@@ -18,6 +18,10 @@ public interface CreditService {
 
     ResponseData<Boolean> submit(List<SubmitRequest> requests);
 
+    ResponseData<Boolean> reject(RejectRequest request);
+
+    ResponseData<Boolean> approve(List<SubmitRequest> requests);
+
     ResponseData<Page<CreditReport>> findPageable(SearchCreditRequest request);
 
     ResponseData<List<CreditReport>> find(SearchCreditRequest request);

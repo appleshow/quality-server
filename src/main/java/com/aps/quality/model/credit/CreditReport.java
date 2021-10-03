@@ -47,6 +47,8 @@ public interface CreditReport {
 
     String getRejectBy();
 
+    String getRejectUserType();
+
     String getRemark();
 
     Integer getStatus();

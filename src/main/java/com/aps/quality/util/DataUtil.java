@@ -123,6 +123,14 @@ public abstract class DataUtil {
         return emptyNames.toArray(new String[emptyNames.size()]);
     }
 
+    public static String[] nvl(final String[] string, final String[] value) {
+        return null == string || string.length <= 0 ? value : string;
+    }
+
+    public static Integer[] nvl(final Integer[] string, final Integer[] value) {
+        return null == string || string.length <= 0 ? value : string;
+    }
+
     public static String nvl(final String string, final String value) {
         return !StringUtils.hasLength(string) ? value : string;
     }

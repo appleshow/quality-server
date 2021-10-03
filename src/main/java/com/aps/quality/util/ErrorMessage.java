@@ -20,6 +20,7 @@ public enum ErrorMessage {
     NAME_INVALID(10008, "name为空或已存在"),
     DEVICE_INVALID(10009, "设备已失效"),
     READ_FILE_ERROR(10010, "读取文件失败"),
+    INSUFFICIENT_PERMISSIONS(10011, "权限不足"),
     IMAGE_TYPE_NOT_SUPPORT(11003, "图片格式不支持；支持的图片格式：PNG、JPG、JPEG、BMP"),
     IMAGE_SIZE_NOT_SUPPORT(11004, "图片大小超过限制"),
     IMAGE_INVALID(11005, "无法解析图片"),

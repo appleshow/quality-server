@@ -25,7 +25,7 @@ public class CreditApprovalInfo implements Serializable {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
     @Column(name = "type", nullable = true, length = 100)
-    private String type;
+    private Integer type;
     @Column(name = "atr1", nullable = true, length = 100)
     private String atr1;
 

@@ -3,6 +3,7 @@ package com.aps.quality.util;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -313,6 +314,7 @@ public abstract class Const {
     @Getter
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum CreditStatus {
+        NULL(null, ""),
         REJECT(5, "退回"),
         DRAFT(10, "草稿"),
         SUBMIT(20, "已提交"),
@@ -350,6 +352,17 @@ public abstract class Const {
                 return false;
             }
             if (SUBMIT.getCode().compareTo(status) > 0) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static boolean canBeRejected(Integer status) {
+            if (null == status) {
+                return false;
+            }
+            if (SUBMIT.getCode().compareTo(status) <= 0 && !APPROVED.getCode().equals(status)) {
                 return true;
             }
 
@@ -674,6 +687,8 @@ public abstract class Const {
     public static class UserType {
         // 管理员
         public final static String ADMIN = "ADMIN";
+        // 管理员
+        public final static String MASTER = "MASTER";
         // 团委直属 - 团委会/学生会
         public final static String YLC_L1 = "YLC_L1";
         // 团委直属 - 协会
@@ -684,5 +699,26 @@ public abstract class Const {
         public final static String CLASS = "CLASS";
         // 班级学生
         public final static String STUDENT = "STUDENT";
+
+        public static boolean canBeApprove(String userType) {
+            if (!StringUtils.hasLength(userType)) {
+                return false;
+            }
+            if (ADMIN.equals(userType) || MASTER.equals(userType) || YLC_L2.equals(userType) || FACULTY.equals(userType)) {
+                return true;
+            }
+            return false;
+        }
+
+        public static CreditStatus getCreditStatus(String userType) {
+            if (ADMIN.equals(userType) || MASTER.equals(userType)) {
+                return CreditStatus.APPROVED;
+            }
+            if (YLC_L2.equals(userType) || FACULTY.equals(userType)) {
+                return CreditStatus.APPROVING;
+            }
+
+            return CreditStatus.NULL;
+        }
     }
 }

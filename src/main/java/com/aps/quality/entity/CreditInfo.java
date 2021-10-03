@@ -1,10 +1,6 @@
 package com.aps.quality.entity;
 
 import lombok.Data;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,7 +11,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Entity
@@ -85,13 +80,6 @@ public class CreditInfo implements Serializable {
     @LastModifiedBy
     private String updateBy;
 
-    @OneToMany
-    @JoinColumn(name = "credit_id", referencedColumnName = "credit_id", insertable = false, updatable = false)
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private List<CreditApprovalConcise> creditApprovalConcises;
-
     public void beforeSave() {
-        creditApprovalConcises = null;
     }
 }

@@ -17,7 +17,7 @@ public class CreditApprovalInfoDto implements Serializable {
     @ApiModelProperty(name = "userId", required = false, example = "", notes = "用户ID")
     private Integer userId;
     @ApiModelProperty(name = "type", required = false, example = "", notes = "备用")
-    private String type;
+    private Integer type;
     @ApiModelProperty(name = "atr1", required = false, example = "", notes = "备用")
     private String atr1;
     @ApiModelProperty(name = "atr2", required = false, example = "", notes = "备用")
