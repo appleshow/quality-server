@@ -484,6 +484,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             if (null == userInfo) {
                 if (!Const.UserType.CLASS.equals(DataUtil.getAuthorityUserType())) {
                     return new ResponseData(ErrorMessage.USER_NOT_EXIST);
+                } else if (!DataUtil.getAuthorityOrganizationId().equals(userInfo.getOrganizationId())) {
+                    return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH);
                 } else {
                     r.setUserInfo(new UserInfo());
 

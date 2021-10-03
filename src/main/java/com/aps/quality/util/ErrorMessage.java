@@ -28,6 +28,7 @@ public enum ErrorMessage {
     USER_NOT_EXIST(11014, "用户不存在"),
     USER_NAME_IS_NULL(11019, "用户名不能为空"),
     USER_CODE_EXIST(11020, "用户代码已存在"),
+    ORGANIZATION_NOT_MATCH(11021, "录入学号对应的学生班级不匹配"),
     ROLE_NOT_EXIST(12001, "role不存在"),
     GROUP_NOT_EXIST(12002, "group不存在"),
     DEVICE_NOT_EXIST(12003, "device不存在"),

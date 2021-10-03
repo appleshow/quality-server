@@ -44,10 +44,12 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
-                    "         ci.create_by AS createBy, " +
+                    "         uc.user_name AS createBy, " +
+                    "         uc.atr1 AS createUserOrganizationLink, " +
                     "         ci.create_time AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
@@ -89,10 +91,12 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
-                    "         ci.create_by AS createBy, " +
+                    "         uc.user_name AS createBy, " +
+                    "         uc.atr1 AS createUserOrganizationLink, " +
                     "         ci.create_time AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
@@ -136,10 +140,12 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.atr3 AS rejectUserType, " +
                     "         ci.remark AS remark, " +
                     "         ci.status AS status, " +
-                    "         ci.create_by AS createBy, " +
+                    "         uc.user_name AS createBy, " +
+                    "         uc.atr1 AS createUserOrganizationLink, " +
                     "         ci.create_time AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
@@ -200,9 +206,11 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
+                    "         NULL AS createUserOrganizationLink, " +
                     "         NULL AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
@@ -265,9 +273,11 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
+                    "         NULL AS createUserOrganizationLink, " +
                     "         NULL AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
@@ -330,9 +340,11 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         NULL AS remark, " +
                     "         NULL AS status, " +
                     "         NULL AS createBy, " +
+                    "         NULL AS createUserOrganizationLink, " +
                     "         NULL AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
+                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
                     "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id = :#{#search.organizationId} AND ui.organization_id = omi.child_organization_id " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
