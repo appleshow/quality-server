@@ -13,6 +13,8 @@ public interface CreditReport {
 
     Integer getSubmit();
 
+    Integer getApprove();
+
     Integer getCertificate();
 
     String getCreditIds();
@@ -52,6 +54,8 @@ public interface CreditReport {
     String getRemark();
 
     Integer getStatus();
+
+    Integer getVersion();
 
     String getCreateBy();
 

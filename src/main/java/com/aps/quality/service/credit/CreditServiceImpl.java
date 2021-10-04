@@ -309,8 +309,19 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
         searchCheck(request);
 
-        log.info("call creditInfoRepository.find()");
-        return new ResponseData<>(creditInfoRepository.find(request));
+        if (request.isGroupByCampaign() && request.isGroupByUser()) {
+            log.info("call creditInfoRepository.findByCampaignAndUserGroup()");
+            return new ResponseData<>(creditInfoRepository.findByCampaignAndUserGroup(request));
+        } else if (request.isGroupByCampaign()) {
+            log.info("call creditInfoRepository.findByCampaignGroup()");
+            return new ResponseData<>(creditInfoRepository.findByCampaignGroup(request));
+        } else if (request.isGroupByUser()) {
+            log.info("call creditInfoRepository.findByUserGroup()");
+            return new ResponseData<>(creditInfoRepository.findByUserGroup(request));
+        } else {
+            log.info("call creditInfoRepository.find()");
+            return new ResponseData<>(creditInfoRepository.find(request));
+        }
     }
 
     @Override
@@ -565,17 +576,19 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
 
         if (Const.UserType.YLC_L1.equals(currentUserType) || Const.UserType.YLC_L2.equals(currentUserType)) {
-            request.setCreateBy(DataUtil.getAuthorityUserName());
-            request.setOrganizationId(1);
+            request.setMatchUser(false);
         } else {
-            request.setCreateBy(null);
-            if (null == request.getOrganizationId()) {
-                request.setOrganizationId(DataUtil.getAuthorityOrganizationId());
-            } else if (request.getOrganizationId() < DataUtil.getAuthorityOrganizationId()) {
-                request.setOrganizationId(currentUserOrganizationId);
-            }
+            request.setMatchUser(true);
         }
+
+        if (null == request.getOrganizationId()) {
+            request.setOrganizationId(currentUserOrganizationId);
+        } else if (request.getOrganizationId() < DataUtil.getAuthorityOrganizationId()) {
+            request.setOrganizationId(currentUserOrganizationId);
+        }
+
         if (Const.UserType.STUDENT.equals(currentUserType)) {
+            request.setUserId(DataUtil.getAuthorityUserId());
             request.setStatus(Const.CreditStatus.APPROVED.getCode());
         }
     }

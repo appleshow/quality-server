@@ -43,6 +43,8 @@ public class SearchCreditRequest extends PageableSearch {
     private Integer statusTo;
     @ApiModelProperty(name = "createBy", required = false, example = "", notes = "创建人")
     private String createBy;
+    @ApiModelProperty(name = "matchUser", required = false, example = "", notes = "是否按用户匹配")
+    private boolean matchUser;
 
     public void init() {
         creditIds = DataUtil.nvl(creditIds, null);
