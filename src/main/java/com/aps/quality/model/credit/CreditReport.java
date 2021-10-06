@@ -57,6 +57,8 @@ public interface CreditReport {
 
     Integer getVersion();
 
+    String getCreateByUserCode();
+
     String getCreateBy();
 
     String getCreateUserOrganizationLink();

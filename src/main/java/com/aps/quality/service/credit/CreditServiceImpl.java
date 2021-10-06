@@ -147,7 +147,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         if (null == creditInfo) {
             return new ResponseData(ErrorMessage.CREDIT_NOT_EXIST);
         }
-        if (!Const.Status.NORMAL.equalWithCode(creditInfo.getStatus())) {
+        if (Const.CreditStatus.DRAFT.getCode().compareTo(creditInfo.getStatus()) > 0) {
             return new ResponseData(ErrorMessage.PROHIBIT_DELETE_DATA);
         }
 
@@ -308,19 +308,19 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         request.init();
 
         searchCheck(request);
-
+        final Sort sort = request.getDefaultSort(new Sort.Order(Sort.Direction.DESC, "createTime"));
         if (request.isGroupByCampaign() && request.isGroupByUser()) {
             log.info("call creditInfoRepository.findByCampaignAndUserGroup()");
-            return new ResponseData<>(creditInfoRepository.findByCampaignAndUserGroup(request));
+            return new ResponseData<>(creditInfoRepository.findByCampaignAndUserGroup(request, sort));
         } else if (request.isGroupByCampaign()) {
             log.info("call creditInfoRepository.findByCampaignGroup()");
-            return new ResponseData<>(creditInfoRepository.findByCampaignGroup(request));
+            return new ResponseData<>(creditInfoRepository.findByCampaignGroup(request, sort));
         } else if (request.isGroupByUser()) {
             log.info("call creditInfoRepository.findByUserGroup()");
-            return new ResponseData<>(creditInfoRepository.findByUserGroup(request));
+            return new ResponseData<>(creditInfoRepository.findByUserGroup(request, sort));
         } else {
             log.info("call creditInfoRepository.find()");
-            return new ResponseData<>(creditInfoRepository.find(request));
+            return new ResponseData<>(creditInfoRepository.find(request, sort));
         }
     }
 
@@ -331,8 +331,9 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
         searchCheck(request);
 
+        final Sort sort = request.getDefaultSort(new Sort.Order(Sort.Direction.DESC, "createTime"));
         log.info("call creditInfoRepository.findSub()");
-        return new ResponseData<>(creditInfoRepository.findSub(request));
+        return new ResponseData<>(creditInfoRepository.findSub(request, sort));
     }
 
     @Override
@@ -529,7 +530,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                 final Calendar calendar = Calendar.getInstance();
                 calendar.setTime(creditInfo.getCreditTime());
                 creditInfo.setCreditYear(calendar.get(Calendar.YEAR));
-                creditInfo.setCreditMonth(calendar.get(Calendar.MONTH + 1));
+                creditInfo.setCreditMonth(calendar.get(Calendar.MONTH) + 1);
             }
 
             creditInfoRepository.save(creditInfo);
@@ -581,10 +582,13 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             request.setMatchUser(true);
         }
 
-        if (null == request.getOrganizationId()) {
-            request.setOrganizationId(currentUserOrganizationId);
-        } else if (request.getOrganizationId() < DataUtil.getAuthorityOrganizationId()) {
-            request.setOrganizationId(currentUserOrganizationId);
+        if (null == request.getOrganizationIds()) {
+            request.setOrganizationIds(new Integer[]{currentUserOrganizationId});
+        } else if (Arrays.stream(request.getOrganizationIds()).anyMatch(o -> o < currentUserOrganizationId)) {
+            final List<Integer> organizationIdList = new ArrayList<>();
+            Arrays.stream(request.getOrganizationIds()).filter(o -> o >= currentUserOrganizationId).forEach(o -> organizationIdList.add(o));
+            request.setOrganizationIds(new Integer[]{});
+            request.setOrganizationIds(organizationIdList.toArray(request.getOrganizationIds()));
         }
 
         if (Const.UserType.STUDENT.equals(currentUserType)) {

@@ -96,7 +96,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == organizationInfo) {
             return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
         }
-        
+
         BeanUtils.copyProperties(request, userInfo, DataUtil.getNullPropertyNames(request));
         userInfo.setUserType(findUserType(organizationInfo));
         log.info("call userInfoRepository.save()");
@@ -166,7 +166,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
-        if (passwordEncoder.matches(userInfo.getUserPassword(), request.getOldPassword())) {
+        if (passwordEncoder.matches(request.getOldPassword(), userInfo.getUserPassword())) {
             userInfo.setUserPassword(passwordEncoder.encode(request.getNewPassword()));
         } else {
             return new ResponseData(ErrorMessage.PASSWORD_INVALID);

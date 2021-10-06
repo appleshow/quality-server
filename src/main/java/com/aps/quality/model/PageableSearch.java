@@ -85,6 +85,18 @@ public class PageableSearch implements Serializable {
                 Sort.by(orders));
     }
 
+    public Sort getDefaultSort(Sort.Order... defaultOrder) {
+        final List<Sort.Order> orders = new ArrayList<>();
+
+        if (!StringUtils.hasLength(getSortField())) {
+            Arrays.stream(defaultOrder).forEach(o -> orders.add(o));
+        } else {
+            orders.add(new Sort.Order(isSortAsc() ? Sort.Direction.ASC : Sort.Direction.DESC, getSortField()));
+        }
+
+        return Sort.by(orders);
+    }
+
     public <S, D> Page<D> exchange(ConfigurableMapper mapper, Page<S> s, Pageable pageable, Class d) {
         final List<S> source = Optional.ofNullable(s).map(Page::getContent).orElse(new ArrayList<>());
 

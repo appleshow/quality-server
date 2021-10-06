@@ -72,7 +72,7 @@ public class UserController extends ExceptionController {
     }
 
     @ApiOperation("设置当前用户密码")
-    @PostMapping("setPassword")
+    @PutMapping("setPassword")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<Boolean> setPassword(@RequestBody final ResetPasswordRequest request) {
         return userService.setPassword(request);

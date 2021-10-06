@@ -687,8 +687,10 @@ public abstract class Const {
     public static class UserType {
         // 管理员
         public final static String ADMIN = "ADMIN";
-        // 管理员
+        // 校团委管理员
         public final static String MASTER = "MASTER";
+        // 校团委审批员
+        public final static String CHIEF = "CHIEF";
         // 团委直属 - 团委会/学生会
         public final static String YLC_L1 = "YLC_L1";
         // 团委直属 - 协会
@@ -704,14 +706,14 @@ public abstract class Const {
             if (!StringUtils.hasLength(userType)) {
                 return false;
             }
-            if (ADMIN.equals(userType) || MASTER.equals(userType) || YLC_L2.equals(userType) || FACULTY.equals(userType)) {
+            if (ADMIN.equals(userType) || MASTER.equals(userType) || CHIEF.equals(userType) || YLC_L2.equals(userType) || FACULTY.equals(userType)) {
                 return true;
             }
             return false;
         }
 
         public static CreditStatus getCreditStatus(String userType) {
-            if (ADMIN.equals(userType) || MASTER.equals(userType)) {
+            if (ADMIN.equals(userType) || MASTER.equals(userType) || CHIEF.equals(userType)) {
                 return CreditStatus.APPROVED;
             }
             if (YLC_L2.equals(userType) || FACULTY.equals(userType)) {

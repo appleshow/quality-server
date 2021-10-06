@@ -27,8 +27,8 @@ public class SearchCreditRequest extends PageableSearch {
     private String userName;
     @ApiModelProperty(name = "userGender", required = false, example = "", notes = "学生性别")
     private String userGender;
-    @ApiModelProperty(name = "organizationId", required = false, example = "", notes = "学生系别")
-    private Integer organizationId;
+    @ApiModelProperty(name = "organizationIds", required = false, example = "", notes = "学生系别")
+    private Integer[] organizationIds;
     @ApiModelProperty(name = "creditTimeFrom", required = false, example = "", notes = "学分获取开始时间")
     private Date creditTimeFrom;
     @ApiModelProperty(name = "creditTimeTo", required = false, example = "", notes = "学分获取结束时间")
@@ -54,7 +54,7 @@ public class SearchCreditRequest extends PageableSearch {
         userCode = DataUtil.nvl(userCode, null);
         userName = DataUtil.likeFormat(userName);
         userGender = DataUtil.nvl(userGender, null);
-        organizationId = DataUtil.nvl(organizationId, null);
+        organizationIds = DataUtil.nvl(organizationIds, null);
         creditTimeFrom = DataUtil.nvl(creditTimeFrom, null);
         creditTimeTo = DataUtil.nvl(creditTimeTo, null);
         instructor = DataUtil.nvl(instructor, null);
