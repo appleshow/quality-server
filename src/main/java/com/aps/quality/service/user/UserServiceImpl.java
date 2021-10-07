@@ -179,6 +179,9 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         } else {
             return new ResponseData(ErrorMessage.PASSWORD_INVALID);
         }
+        if (request.getNewPassword().equals(request.getOldPassword())) {
+            return new ResponseData(ErrorMessage.NEW_PASSWORD_SAME_OLD);
+        }
 
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);

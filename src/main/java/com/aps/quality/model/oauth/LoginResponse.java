@@ -14,4 +14,6 @@ public class LoginResponse implements Serializable {
     private SecurityToken securityToken;
     @ApiModelProperty(name = "userInfo", required = true, example = "", notes = "用户信息，仅用户登入时")
     private UserInfoDto userInfo;
+    @ApiModelProperty(name = "changePassword", required = true, example = "", notes = "是否强制更新密码")
+    private boolean changePassword;
 }

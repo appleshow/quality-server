@@ -75,6 +75,11 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
                 return new ResponseData(ErrorMessage.USER_INVALID);
             }
             loginResponse.setUserInfo(userInfoMapper.map(user, UserInfoDto.class));
+            if (request.getUserPassword().equals(user.getUserCode())) {
+                loginResponse.setChangePassword(true);
+            } else {
+                loginResponse.setChangePassword(false);
+            }
         }
         saveLog(Const.OperationType.LOGIN, request.getUserCode(), Const.OperationSubType.USER, request);
 

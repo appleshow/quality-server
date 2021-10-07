@@ -35,6 +35,7 @@ public enum ErrorMessage {
     ROLE_HAS_BEEN_USED(12003, "role已被group引用"),
     GROUP_HAS_BEEN_USED(12004, "group已被user引用"),
     PASSWORD_INVALID(12005, "用户密码不正确"),
+    NEW_PASSWORD_SAME_OLD(12005, "用户新密码与旧密码一致"),
     FATHER_ORGANIZATION_ID_INVALID(12006, "fatherOrganizationId为空或无效"),
     ORGANIZATION_ID_INVALID(12007, "organizationId为空或无效"),
     ORGANIZATION_HAS_BEEN_USED(12008, "organization已被引用"),
