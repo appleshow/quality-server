@@ -60,6 +60,7 @@ public enum ErrorMessage {
     IMPORT_FILE_IS_EMPTY(12019, "上传文件中无数据"),
     IMPORT_FILE_CREDIT_TIME_INVALID(12020, "上传文件中 活到开展时间 格式错误"),
     IMPORT_FILE_USER_NAME_NULL(12021, "上传文件中 学生姓名 不能为空"),
+    IMPORT_FILE_USER_GENDER_NULL(12022, "上传文件中 学生性别 不能为空"),
 
     SSO_RESPONSE_STATE_INVALID(50001, "返回state无效"),
     SSO_RESPONSE_CODE_EMPTY(50002, "返回code为空"),

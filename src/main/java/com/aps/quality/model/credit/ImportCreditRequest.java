@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class ImportRequest implements Serializable {
+public class ImportCreditRequest implements Serializable {
     private String campaignType;
     private String campaignName;
     private String userCode;

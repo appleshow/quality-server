@@ -1,6 +1,7 @@
 package com.aps.quality.controller;
 
 import com.aps.quality.model.ResponseData;
+import com.aps.quality.model.credit.ImportResponse;
 import com.aps.quality.model.dto.UserConciseDto;
 import com.aps.quality.model.dto.UserInfoDto;
 import com.aps.quality.model.user.CreateUserRequest;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -76,6 +78,13 @@ public class UserController extends ExceptionController {
     @PreAuthorize("hasAnyAuthority('PORTAL')")
     public ResponseData<Boolean> setPassword(@RequestBody final ResetPasswordRequest request) {
         return userService.setPassword(request);
+    }
+
+    @ApiOperation("导入学生")
+    @PostMapping("import/file")
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<ImportResponse> importCredit(@RequestParam(value = "file") MultipartFile file) {
+        return userService.importStudent(file);
     }
 
     @ApiOperation("分页查询用户")

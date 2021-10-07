@@ -4,6 +4,8 @@ import com.aps.quality.entity.*;
 import com.aps.quality.mapper.UserInfoConciseMapper;
 import com.aps.quality.mapper.UserInfoMapper;
 import com.aps.quality.model.ResponseData;
+import com.aps.quality.model.credit.ImportResponse;
+import com.aps.quality.model.credit.ImportStudentRequest;
 import com.aps.quality.model.dto.UserConciseDto;
 import com.aps.quality.model.dto.UserInfoDto;
 import com.aps.quality.model.user.CreateUserRequest;
@@ -15,7 +17,10 @@ import com.aps.quality.service.OperationLogService;
 import com.aps.quality.util.Const;
 import com.aps.quality.util.DataUtil;
 import com.aps.quality.util.ErrorMessage;
+import com.aps.quality.util.ExcelUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +28,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -177,6 +185,77 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_PASSWORD, userInfo.getUserCode(), "Set New Password");
 
         return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<ImportResponse> importStudent(MultipartFile file) {
+        final ImportResponse response = new ImportResponse();
+        final List<ImportStudentRequest> requestList = new ArrayList<>();
+        final int maxRows = 200;
+
+        final InputStream inputStream = ExcelUtil.getInputStream(file);
+        if (null == inputStream) {
+            return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+        }
+
+        try (final Workbook workbook = ExcelUtil.createWorkbook(inputStream, file.getOriginalFilename())) {
+            if (null == workbook) {
+                return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+            }
+            final Sheet sheet = workbook.getSheetAt(0);
+            if (null == sheet) {
+                return new ResponseData(ErrorMessage.READ_FILE_ERROR);
+            }
+            response.init();
+            for (int row = 1; row <= maxRows; row++) {
+                final ImportStudentRequest request = new ImportStudentRequest();
+                request.setUserCode(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
+                if (!StringUtils.hasLength(request.getUserCode())) {
+                    continue;
+                }
+                request.setUserName(ExcelUtil.getCellFormatValue(sheet, row, 1).trim());
+                if (!StringUtils.hasLength(request.getUserName())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_USER_NAME_NULL);
+                }
+                request.setUserGender(ExcelUtil.getCellFormatValue(sheet, row, 2).trim());
+                if (!StringUtils.hasLength(request.getUserGender())) {
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_USER_GENDER_NULL);
+                }
+                request.setUserGender("女".endsWith(request.getUserGender()) ? "0" : "1");
+                request.setUserPhone(ExcelUtil.getCellFormatValue(sheet, row, 3).trim());
+                request.setTeacherName(ExcelUtil.getCellFormatValue(sheet, row, 4).trim());
+                request.setTeacherPhone(ExcelUtil.getCellFormatValue(sheet, row, 5).trim());
+
+                requestList.add(request);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        if (requestList.isEmpty()) {
+            return new ResponseData(ErrorMessage.IMPORT_FILE_IS_EMPTY);
+        }
+        for (ImportStudentRequest r : requestList) {
+            final UserInfo userInfo = userInfoRepository.findByUserCode(r.getUserCode()).orElse(null);
+            if (null != userInfo) {
+                return new ResponseData(ErrorMessage.USER_CODE_EXIST, r.getUserCode());
+            }
+        }
+
+        requestList.forEach(r -> {
+            final UserInfo userInfo = new UserInfo();
+            BeanUtils.copyProperties(r, userInfo, DataUtil.getNullPropertyNames(r));
+            userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserCode()));
+            userInfo.setUserType(Const.UserType.STUDENT);
+            userInfo.setOrganizationId(DataUtil.getAuthorityOrganizationId());
+            userInfo.setAtr1(DataUtil.getAuthorityOrganizationLink());
+            userInfo.setStatus(1);
+            userInfoRepository.save(userInfo);
+
+            response.setTotal(response.getTotal() + 1);
+        });
+
+        return new ResponseData<>(response);
     }
 
     @Override

@@ -339,6 +339,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     @Override
     public ResponseData<UploadResponse> uploadFile(MultipartFile file) {
         final String fileOriginalName = file.getOriginalFilename();
+        final String[] fileTypes = fileOriginalName.split("\\.");
 
         log.info("call upload(): {}", fileOriginalName);
         final ErrorMessage check = checkUploadImage(file);
@@ -349,7 +350,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         final String storageFileName = fileActions.stream()
                 .filter(a -> a.isMatch(fileActionChannel))
                 .findAny()
-                .map(a -> a.saveFromFile(file, Const.ContentType.IMAGE_JPG.getCode()))
+                .map(a -> a.saveFromFile(file, Const.ContentType.IMAGE_JPG.getCode(), fileTypes[fileTypes.length - 1]))
                 .orElse(null);
 
         if (null == storageFileName) {
@@ -424,7 +425,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     @Override
     public ResponseData<ImportResponse> importCredit(MultipartFile file) {
         final ImportResponse response = new ImportResponse();
-        final List<ImportRequest> requestList = new ArrayList<>();
+        final List<ImportCreditRequest> requestList = new ArrayList<>();
         final int maxRows = 200;
 
         final InputStream inputStream = ExcelUtil.getInputStream(file);
@@ -443,7 +444,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             response.init();
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             for (int row = 1; row <= maxRows; row++) {
-                final ImportRequest request = new ImportRequest();
+                final ImportCreditRequest request = new ImportCreditRequest();
                 request.setCampaignType(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
                 if (!StringUtils.hasLength(request.getCampaignType())) {
                     continue;
@@ -491,7 +492,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         if (requestList.isEmpty()) {
             return new ResponseData(ErrorMessage.IMPORT_FILE_IS_EMPTY);
         }
-        for (ImportRequest r : requestList) {
+        for (ImportCreditRequest r : requestList) {
             final UserInfo userInfo = userInfoRepository.findByUserCode(r.getUserCode()).orElse(null);
             if (null == userInfo) {
                 if (!Const.UserType.CLASS.equals(DataUtil.getAuthorityUserType())) {

@@ -27,6 +27,11 @@ public class ResponseData<T> implements Serializable {
         this.errorMessage = error.getDescription();
     }
 
+    public ResponseData(final ErrorMessage error, String message) {
+        this.errorCode = error.getCode();
+        this.errorMessage = String.format("%s: %s", error.getDescription(), message);
+    }
+
     public ResponseData(final T data) {
         this.data = data;
     }

@@ -22,15 +22,15 @@ public class FileActionLocal extends FileActionBase {
     }
 
     @Override
-    public String saveFromBase64(final String imageBase64, final String contentType) {
+    public String saveFromBase64(final String imageBase64, final String contentType, final String fileType) {
         log.info("call saveImageFromBase64 for LOCAL");
-        final String[] path = createImageFileName();
+        final String[] path = createImageFileName(fileType);
         try {
             final byte[] imageBytes = new BASE64Decoder().decodeBuffer(imageBase64);
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
             final BufferedImage bufferedImage = ImageIO.read(inputStream);
             final File file = new File(path[0]);
-            ImageIO.write(bufferedImage, "jpg", file);
+            ImageIO.write(bufferedImage, fileType, file);
 
             return path[1];
         } catch (Exception e) {
@@ -40,9 +40,9 @@ public class FileActionLocal extends FileActionBase {
     }
 
     @Override
-    public String saveFromFile(final MultipartFile imageFile, final String contentType) {
+    public String saveFromFile(final MultipartFile imageFile, final String contentType, final String fileType) {
         log.info("call saveImageFromFile for LOCAL");
-        final String[] path = createImageFileName();
+        final String[] path = createImageFileName(fileType);
         try {
             final File file = new File(path[0]);
             imageFile.transferTo(file);
