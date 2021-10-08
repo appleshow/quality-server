@@ -164,6 +164,9 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         if (null == requests) {
             return new ResponseData<>(true);
         }
+        final String currentUserType = DataUtil.getAuthorityUserType();
+        final Integer status = Const.UserType.FACULTY.equals(currentUserType) || Const.UserType.YLC_L1.equals(currentUserType)
+                ? Const.CreditStatus.APPROVING.getCode() : Const.CreditStatus.SUBMIT.getCode();
         requests.forEach(request -> {
             final List<Integer> creditIdList = new ArrayList<>();
 
@@ -180,7 +183,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                     creditInfo.setAtr1(null);
                     creditInfo.setAtr2(null);
                     creditInfo.setAtr3(null);
-                    creditInfo.setStatus(Const.CreditStatus.SUBMIT.getCode());
+                    creditInfo.setStatus(status);
 
                     creditInfoRepository.save(creditInfo);
                 }
@@ -574,13 +577,20 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     }
 
     private void searchCheck(final SearchCreditRequest request) {
+        final String currentUserCode = DataUtil.getAuthorityUserName();
         final String currentUserType = DataUtil.getAuthorityUserType();
         final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
 
         if (Const.UserType.YLC_L1.equals(currentUserType) || Const.UserType.YLC_L2.equals(currentUserType)) {
             request.setMatchUser(false);
+            request.setCreateBy(currentUserCode);
         } else {
-            request.setMatchUser(true);
+            if (StringUtils.hasLength(request.getSearchType())) {
+                request.setMatchUser(false);
+                request.setCreateBy(currentUserCode);
+            } else {
+                request.setMatchUser(true);
+            }
         }
 
         if (null == request.getOrganizationIds()) {

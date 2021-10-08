@@ -157,7 +157,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
-        userInfo.setUserPassword(passwordEncoder.encode(Const.DEFAULT_PASSWORD));
+        userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserCode()));
 
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
