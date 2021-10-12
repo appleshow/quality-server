@@ -16,6 +16,8 @@ public interface CreditService {
 
     ResponseData<Boolean> delete(Integer id);
 
+    ResponseData<Boolean> deleteBatch(Integer[] ids);
+
     ResponseData<Boolean> submit(List<SubmitRequest> requests);
 
     ResponseData<Boolean> reject(RejectRequest request);

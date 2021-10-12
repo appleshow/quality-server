@@ -147,13 +147,36 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         if (null == creditInfo) {
             return new ResponseData(ErrorMessage.CREDIT_NOT_EXIST);
         }
-        if (Const.CreditStatus.DRAFT.getCode().compareTo(creditInfo.getStatus()) > 0) {
+        if (Const.CreditStatus.DRAFT.getCode().compareTo(creditInfo.getStatus()) < 0) {
             return new ResponseData(ErrorMessage.PROHIBIT_DELETE_DATA);
         }
 
-        certificateInfoRepository.findByCreditId(id).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
-        creditApprovalInfoRepository.findByCreditId(id).ifPresent(cas -> cas.forEach(ca -> creditApprovalInfoRepository.delete(ca)));
-        creditInfoRepository.delete(creditInfo);
+        return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> deleteBatch(Integer[] ids) {
+        if (null == ids) {
+            return new ResponseData<>(true);
+        }
+
+        final List<CreditInfo> creditInfoList = new ArrayList<>();
+        for (Integer id : ids) {
+            final CreditInfo creditInfo = creditInfoRepository.findById(id).orElse(null);
+            if (null == creditInfo) {
+                return new ResponseData(ErrorMessage.CREDIT_NOT_EXIST, String.valueOf(id));
+            }
+            if (Const.CreditStatus.DRAFT.getCode().compareTo(creditInfo.getStatus()) < 0) {
+                return new ResponseData(ErrorMessage.PROHIBIT_DELETE_DATA, String.valueOf(id));
+            }
+            creditInfoList.add(creditInfo);
+        }
+
+        creditInfoList.stream().forEach(ci -> {
+            certificateInfoRepository.findByCreditId(ci.getCreditId()).ifPresent(cs -> cs.forEach(c -> certificateInfoRepository.delete(c)));
+            creditApprovalInfoRepository.findByCreditId(ci.getCreditId()).ifPresent(cas -> cas.forEach(ca -> creditApprovalInfoRepository.delete(ca)));
+            creditInfoRepository.delete(ci);
+        });
 
         return new ResponseData<>(true);
     }
@@ -480,7 +503,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                 try {
                     request.setCreditTime(simpleDateFormat.parse(creditDate));
                 } catch (ParseException e) {
-                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_INVALID);
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_INVALID, String.format("第 %d 行数据", row + 1));
                 }
 
                 request.setInstructor(ExcelUtil.getCellFormatValue(sheet, row, 6).trim());
@@ -490,6 +513,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             }
         } catch (Exception e) {
             log.error(e.getMessage());
+            return new ResponseData(ErrorMessage.RUNTIME_EXCEPTION, e.getMessage());
         }
 
         if (requestList.isEmpty()) {
@@ -499,9 +523,9 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             final UserInfo userInfo = userInfoRepository.findByUserCode(r.getUserCode()).orElse(null);
             if (null == userInfo) {
                 if (!Const.UserType.CLASS.equals(DataUtil.getAuthorityUserType())) {
-                    return new ResponseData(ErrorMessage.USER_NOT_EXIST);
-                } else if (!DataUtil.getAuthorityOrganizationId().equals(userInfo.getOrganizationId())) {
-                    return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH);
+                    return new ResponseData(ErrorMessage.USER_NOT_EXIST, r.getUserCode());
+                } else if (null == DataUtil.getAuthorityOrganizationId() || null == userInfo.getOrganizationId() || !DataUtil.getAuthorityOrganizationId().equals(userInfo.getOrganizationId())) {
+                    return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, r.getUserCode());
                 } else {
                     r.setUserInfo(new UserInfo());
 

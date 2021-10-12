@@ -22,7 +22,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Integer>,
 
     @Query("SELECT COUNT(a.userId) FROM UserInfo a " +
             "WHERE a.userId <> :userId " +
-            "  AND (a.userCode = :userCode OR a.ssoId = :userCode)")
+            "  AND a.userCode = :userCode")
     Optional<Integer> countByUserCode(@Param("userId") Integer userId, @Param("userCode") String userCode);
 
     Optional<Integer> countByOrganizationId(Integer organizationId);

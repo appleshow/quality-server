@@ -24,6 +24,8 @@ public interface UserService {
 
     ResponseData<Boolean> resetPassword(Integer id);
 
+    ResponseData<Boolean> delete(Integer id);
+
     ResponseData<Boolean> setPassword(ResetPasswordRequest request);
 
     ResponseData<ImportResponse> importStudent(MultipartFile file);

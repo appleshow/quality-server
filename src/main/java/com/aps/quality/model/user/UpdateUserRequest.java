@@ -4,6 +4,7 @@ import com.aps.quality.util.ErrorMessage;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 
@@ -12,6 +13,8 @@ import java.io.Serializable;
 public class UpdateUserRequest implements Serializable {
     @ApiModelProperty(name = "userId", required = true, example = "", notes = "用户ID")
     private Integer userId;
+    @ApiModelProperty(name = "userCode", required = true, example = "", notes = "用户代码")
+    private String userCode;
     @ApiModelProperty(name = "userName", required = true, example = "", notes = "用户名称")
     private String userName;
     @ApiModelProperty(name = "userGender", required = false, example = "", notes = "用户性别")
@@ -44,6 +47,9 @@ public class UpdateUserRequest implements Serializable {
     public ErrorMessage check() {
         if (null == userId) {
             return ErrorMessage.ID_CAN_NOT_BE_NULL;
+        }
+        if (!StringUtils.hasLength(userCode)) {
+            return ErrorMessage.USER_CODE_INVALID;
         }
         if (null == version) {
             return ErrorMessage.VERSION_IS_NULL;

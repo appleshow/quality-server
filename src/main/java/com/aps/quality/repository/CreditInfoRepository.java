@@ -14,11 +14,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>,
         JpaSpecificationExecutor<CreditInfo>,
         PagingAndSortingRepository<CreditInfo, Integer> {
+
+    Optional<Integer> countByUserId(Integer userId);
 
     @Query(nativeQuery = true,
             value = "SELECT a.* FROM ( " +

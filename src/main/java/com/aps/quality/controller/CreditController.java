@@ -47,6 +47,16 @@ public class CreditController extends ExceptionController {
         return creditService.delete(id);
     }
 
+    @ApiOperation("批量删除学分")
+    @PutMapping("delete/batch")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", required = true, example = "学分ID")
+    })
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> deleteBatch(@RequestBody final Integer[] ids) {
+        return creditService.deleteBatch(ids);
+    }
+
     @ApiOperation("提交学分")
     @PutMapping("submit")
     @PreAuthorize("hasAnyAuthority('PORTAL')")

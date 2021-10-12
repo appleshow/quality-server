@@ -73,6 +73,16 @@ public class UserController extends ExceptionController {
         return userService.resetPassword(id);
     }
 
+    @ApiOperation("删除用户")
+    @DeleteMapping("{id}/delete")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", required = true, example = "用户ID")
+    })
+    @PreAuthorize("hasAnyAuthority('PORTAL')")
+    public ResponseData<Boolean> delete(@PathVariable final Integer id) {
+        return userService.delete(id);
+    }
+
     @ApiOperation("设置当前用户密码")
     @PutMapping("setPassword")
     @PreAuthorize("hasAnyAuthority('PORTAL')")

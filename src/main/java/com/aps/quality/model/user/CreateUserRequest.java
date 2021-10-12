@@ -44,7 +44,7 @@ public class CreateUserRequest implements Serializable {
 
     public ErrorMessage check() {
         if (!StringUtils.hasLength(userCode)) {
-            return ErrorMessage.CODE_INVALID;
+            return ErrorMessage.USER_CODE_INVALID;
         }
 
         if (!StringUtils.hasLength(userName)) {

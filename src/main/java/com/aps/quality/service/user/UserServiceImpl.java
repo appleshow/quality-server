@@ -49,6 +49,8 @@ public class UserServiceImpl extends OperationLogService implements UserService 
     private UserRoleInfoRepository userRoleInfoRepository;
     @Resource
     private UserInfoConciseRepository userInfoConciseRepository;
+    @Resource
+    private CreditInfoRepository creditInfoRepository;
 
     @Resource
     private PasswordEncoder passwordEncoder;
@@ -67,7 +69,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
             return new ResponseData(check);
         }
         if (userInfoRepository.countByUserCode(0, request.getUserCode()).orElse(0) > 0) {
-            return new ResponseData(ErrorMessage.CODE_EXIST);
+            return new ResponseData(ErrorMessage.USER_CODE_EXIST);
         }
         final OrganizationInfo organizationInfo = organizationInfoRepository.findById(request.getOrganizationId()).orElse(null);
         if (null == organizationInfo) {
@@ -96,17 +98,30 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         if (ErrorMessage.NULL != check) {
             return new ResponseData(check);
         }
+        if (userInfoRepository.countByUserCode(request.getUserId(), request.getUserCode()).orElse(0) > 0) {
+            return new ResponseData(ErrorMessage.USER_CODE_EXIST);
+        }
         final UserInfo userInfo = userInfoRepository.findById(request.getUserId()).orElse(null);
         if (null == userInfo) {
             return new ResponseData(ErrorMessage.USER_NOT_EXIST);
         }
-        final OrganizationInfo organizationInfo = organizationInfoRepository.findById(request.getOrganizationId()).orElse(null);
-        if (null == organizationInfo) {
-            return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
+        if (!userInfo.getOrganizationId().equals(request.getOrganizationId())) {
+            final OrganizationInfo organizationInfoNew = organizationInfoRepository.findById(request.getOrganizationId()).orElse(null);
+            if (null == organizationInfoNew) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
+            }
+            final OrganizationInfo organizationInfoOld = organizationInfoRepository.findById(userInfo.getOrganizationId()).orElse(null);
+            if (null == organizationInfoOld) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_EXIST);
+            }
+            if (!organizationInfoNew.getOrganizationType().equals(organizationInfoOld.getOrganizationType())
+                    || !organizationInfoNew.getOrganizationLevel().equals(organizationInfoOld.getOrganizationLevel())) {
+                return new ResponseData(ErrorMessage.CHANGE_ORGANIZATION_MUST_IN_SAME_LEVEL);
+            }
         }
 
+
         BeanUtils.copyProperties(request, userInfo, DataUtil.getNullPropertyNames(request));
-        userInfo.setUserType(findUserType(organizationInfo));
         log.info("call userInfoRepository.save()");
         userInfo.beforeSave();
         userInfoRepository.save(userInfo);
@@ -162,6 +177,20 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_PASSWORD, userInfo.getUserCode(), "Reset Password by ID");
+
+        return new ResponseData<>(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> delete(Integer id) {
+        log.info("call delete({})", id);
+
+        if (creditInfoRepository.countByUserId(id).orElse(0) > 0) {
+            return new ResponseData(ErrorMessage.USER_HAS_CREDIT);
+        }
+
+        userInfoRepository.deleteById(id);
+        saveLog(Const.OperationType.DELETE, Const.OperationSubType.USER, null, id);
 
         return new ResponseData<>(true);
     }
