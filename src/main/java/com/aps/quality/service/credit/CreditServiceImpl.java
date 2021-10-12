@@ -429,7 +429,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     public ResponseData<ImportResponse> importCredit(MultipartFile file) {
         final ImportResponse response = new ImportResponse();
         final List<ImportCreditRequest> requestList = new ArrayList<>();
-        final int maxRows = 200;
+        final int maxRows = 1000;
 
         final InputStream inputStream = ExcelUtil.getInputStream(file);
         if (null == inputStream) {

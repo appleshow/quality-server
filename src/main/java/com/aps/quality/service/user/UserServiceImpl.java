@@ -194,7 +194,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
     public ResponseData<ImportResponse> importStudent(MultipartFile file) {
         final ImportResponse response = new ImportResponse();
         final List<ImportStudentRequest> requestList = new ArrayList<>();
-        final int maxRows = 200;
+        final int maxRows = 1000;
 
         final InputStream inputStream = ExcelUtil.getInputStream(file);
         if (null == inputStream) {
@@ -215,6 +215,13 @@ public class UserServiceImpl extends OperationLogService implements UserService 
                 request.setUserCode(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
                 if (!StringUtils.hasLength(request.getUserCode())) {
                     continue;
+                }
+                final UserInfo userInfo = userInfoRepository.findByUserCode(request.getUserCode()).orElse(null);
+                if (null != userInfo) {
+                    return new ResponseData(ErrorMessage.USER_CODE_EXIST, request.getUserCode());
+                }
+                if (requestList.stream().anyMatch(r -> r.getUserCode().equals(request.getUserCode()))) {
+                    return new ResponseData(ErrorMessage.USER_CODE_EXIST, request.getUserCode());
                 }
                 request.setUserName(ExcelUtil.getCellFormatValue(sheet, row, 1).trim());
                 if (!StringUtils.hasLength(request.getUserName())) {

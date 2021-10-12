@@ -83,7 +83,7 @@ public class UserController extends ExceptionController {
     @ApiOperation("导入学生")
     @PostMapping("import/file")
     @PreAuthorize("hasAnyAuthority('PORTAL')")
-    public ResponseData<ImportResponse> importCredit(@RequestParam(value = "file") MultipartFile file) {
+    public ResponseData<ImportResponse> importStudent(@RequestParam(value = "file") MultipartFile file) {
         return userService.importStudent(file);
     }
 
