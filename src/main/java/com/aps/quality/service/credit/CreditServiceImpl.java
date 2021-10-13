@@ -5,10 +5,7 @@ import com.aps.quality.mapper.CertificateInfoMapper;
 import com.aps.quality.model.ResponseData;
 import com.aps.quality.model.credit.*;
 import com.aps.quality.model.dto.CertificateInfoDto;
-import com.aps.quality.repository.CertificateInfoRepository;
-import com.aps.quality.repository.CreditApprovalInfoRepository;
-import com.aps.quality.repository.CreditInfoRepository;
-import com.aps.quality.repository.UserInfoRepository;
+import com.aps.quality.repository.*;
 import com.aps.quality.service.OperationLogService;
 import com.aps.quality.service.component.FileAction;
 import com.aps.quality.util.Const;
@@ -49,6 +46,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     private CertificateInfoRepository certificateInfoRepository;
     @Resource
     private UserInfoRepository userInfoRepository;
+    @Resource
+    private OrganizationMappingInfoRepository organizationMappingInfoRepository;
 
     @Resource
     private CertificateInfoMapper certificateInfoMapper;
@@ -522,31 +521,24 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         for (ImportCreditRequest r : requestList) {
             final UserInfo userInfo = userInfoRepository.findByUserCode(r.getUserCode()).orElse(null);
             if (null == userInfo) {
-                if (!Const.UserType.CLASS.equals(DataUtil.getAuthorityUserType())) {
-                    return new ResponseData(ErrorMessage.USER_NOT_EXIST, r.getUserCode());
-                } else if (null == DataUtil.getAuthorityOrganizationId() || null == userInfo.getOrganizationId() || !DataUtil.getAuthorityOrganizationId().equals(userInfo.getOrganizationId())) {
-                    return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, r.getUserCode());
-                } else {
-                    r.setUserInfo(new UserInfo());
-
-                    r.getUserInfo().setUserCode(r.getUserCode());
-                    r.getUserInfo().setUserName(r.getUserName());
-                    r.getUserInfo().setUserType(Const.UserType.STUDENT);
-                    r.getUserInfo().setOrganizationId(DataUtil.getAuthorityOrganizationId());
-                    r.getUserInfo().setUserPassword(passwordEncoder.encode(r.getUserCode()));
-                    r.getUserInfo().setAtr1(DataUtil.getAuthorityOrganizationLink());
-                    r.getUserInfo().setStatus(1);
-
-                    userInfoRepository.save(r.getUserInfo());
-                }
+                return new ResponseData(ErrorMessage.USER_NOT_EXIST, r.getUserCode());
             } else {
-                r.setUserInfo(userInfo);
+                final String currentUserType = DataUtil.getAuthorityUserType();
+                final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
+                if (Const.UserType.FACULTY.equals(currentUserType) || Const.UserType.CLASS.equals(currentUserType)) {
+                    if (!organizationMappingInfoRepository.findByFatherOrganizationId(currentUserOrganizationId).orElse(new ArrayList<>())
+                            .stream()
+                            .anyMatch(om -> om.getChildOrganizationId().equals(userInfo.getOrganizationId()))) {
+                        return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, r.getUserCode());
+                    }
+                }
+                r.setUserId(userInfo.getUserId());
             }
         }
 
         requestList.forEach(r -> {
             final CreditInfo creditInfo = new CreditInfo();
-            creditInfo.setUserId(r.getUserInfo().getUserId());
+            creditInfo.setUserId(r.getUserId());
             creditInfo.setCampaignType(r.getCampaignType());
             creditInfo.setCampaignName(r.getCampaignName());
             creditInfo.setCredit(r.getCredit());
@@ -604,31 +596,48 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         final String currentUserCode = DataUtil.getAuthorityUserName();
         final String currentUserType = DataUtil.getAuthorityUserType();
         final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
+        final List<Integer> organizationIds = new ArrayList<>();
 
-        if (Const.UserType.YLC_L1.equals(currentUserType) || Const.UserType.YLC_L2.equals(currentUserType)) {
-            request.setMatchUser(false);
+        request.setCreateBy(null);
+        if (null != request.getOrganizationIds()) {
+            organizationIds.addAll(Arrays.asList(request.getOrganizationIds()));
+        }
+        if (StringUtils.hasLength(request.getSearchType())
+                || Const.UserType.YLC_L1.equals(currentUserType)
+                || Const.UserType.YLC_L2.equals(currentUserType)) {
             request.setCreateBy(currentUserCode);
-        } else {
-            if (StringUtils.hasLength(request.getSearchType())) {
-                request.setMatchUser(false);
-                request.setCreateBy(currentUserCode);
-            } else {
-                request.setMatchUser(true);
+        } else if (!Const.UserType.STUDENT.equals(currentUserType)) {
+            if (organizationIds.isEmpty()) {
+                organizationIds.add(currentUserOrganizationId);
             }
         }
-
-        if (null == request.getOrganizationIds()) {
-            request.setOrganizationIds(new Integer[]{currentUserOrganizationId});
-        } else if (Arrays.stream(request.getOrganizationIds()).anyMatch(o -> o < currentUserOrganizationId)) {
-            final List<Integer> organizationIdList = new ArrayList<>();
-            Arrays.stream(request.getOrganizationIds()).filter(o -> o >= currentUserOrganizationId).forEach(o -> organizationIdList.add(o));
-            request.setOrganizationIds(new Integer[]{});
-            request.setOrganizationIds(organizationIdList.toArray(request.getOrganizationIds()));
+        if (!organizationIds.isEmpty()) {
+            final List<Integer> userOrganizationIds = new ArrayList<>();
+            organizationIds.forEach(oi -> {
+                organizationMappingInfoRepository.findByFatherOrganizationId(oi).ifPresent(oms -> {
+                    oms.stream().forEach(om -> {
+                        if (!userOrganizationIds.contains(om.getChildOrganizationId())) {
+                            userOrganizationIds.add(om.getChildOrganizationId());
+                        }
+                    });
+                });
+            });
+            if (!userOrganizationIds.isEmpty()) {
+                request.setOrganizationIds(new Integer[userOrganizationIds.size()]);
+                request.setOrganizationIds(userOrganizationIds.toArray(request.getOrganizationIds()));
+            }
         }
 
         if (Const.UserType.STUDENT.equals(currentUserType)) {
             request.setUserId(DataUtil.getAuthorityUserId());
             request.setStatus(Const.CreditStatus.APPROVED.getCode());
+        }
+
+        if (null == request.getOrganizationIds()) {
+            request.setIgnoreOrganizationIds(true);
+            request.setOrganizationIds(new Integer[]{});
+        } else {
+            request.setIgnoreOrganizationIds(false);
         }
     }
 

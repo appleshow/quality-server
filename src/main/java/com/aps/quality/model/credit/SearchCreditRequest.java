@@ -27,8 +27,10 @@ public class SearchCreditRequest extends PageableSearch {
     private String userName;
     @ApiModelProperty(name = "userGender", required = false, example = "", notes = "学生性别")
     private String userGender;
-    @ApiModelProperty(name = "organizationIds", required = false, example = "", notes = "学生系别")
+    @ApiModelProperty(name = "organizationIds", required = false, example = "", notes = "学生组织")
     private Integer[] organizationIds;
+    @ApiModelProperty(name = "ignoreOrganizationIds", required = false, example = "", notes = "是否按组织")
+    private boolean ignoreOrganizationIds;
     @ApiModelProperty(name = "creditTimeFrom", required = false, example = "", notes = "学分获取开始时间")
     private Date creditTimeFrom;
     @ApiModelProperty(name = "creditTimeTo", required = false, example = "", notes = "学分获取结束时间")
@@ -43,8 +45,6 @@ public class SearchCreditRequest extends PageableSearch {
     private Integer statusTo;
     @ApiModelProperty(name = "createBy", required = false, example = "", notes = "创建人")
     private String createBy;
-    @ApiModelProperty(name = "matchUser", required = false, example = "", notes = "是否按用户匹配")
-    private boolean matchUser;
     @ApiModelProperty(name = "searchType", required = false, example = "", notes = "查询类别")
     private String searchType;
 

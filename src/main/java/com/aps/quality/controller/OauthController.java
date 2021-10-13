@@ -6,10 +6,8 @@ import com.aps.quality.model.oauth.LoginResponse;
 import com.aps.quality.service.oauth.OauthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -24,5 +22,11 @@ public class OauthController extends ExceptionController {
     @PostMapping("login")
     public ResponseData<LoginResponse> login(@RequestBody final LoginRequest request) {
         return oauthService.login(request);
+    }
+
+    @ApiOperation("用户/设备登出")
+    @PostMapping("logout")
+    public ResponseData<Boolean> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) final String token) {
+        return oauthService.logout(token);
     }
 }

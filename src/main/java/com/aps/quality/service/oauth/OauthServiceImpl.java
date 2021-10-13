@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -39,6 +40,9 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
     private UserInfoRepository userInfoRepository;
     @Resource
     private UserInfoMapper userInfoMapper;
+
+    @Resource
+    private TokenStore tokenStore;
 
     @Override
     public ResponseData<LoginResponse> login(final LoginRequest request) {
@@ -84,5 +88,16 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
         saveLog(Const.OperationType.LOGIN, request.getUserCode(), Const.OperationSubType.USER, request);
 
         return new ResponseData<>(loginResponse);
+    }
+
+    @Override
+    public ResponseData<Boolean> logout(String token) {
+        log.info("call logout()");
+        if (StringUtils.hasLength(token)) {
+            log.info("call tokenStore.removeAccessToken()");
+            tokenStore.removeAccessToken(tokenStore.readAccessToken(token.replace("Bearer", "").trim()));
+        }
+
+        return new ResponseData<>(true);
     }
 }

@@ -57,7 +57,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -71,13 +70,13 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
                     "  SELECT ci.credit_id AS creditId " +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -91,6 +90,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a")
     Page<CreditReport> findPageable(@Param("search") SearchCreditRequest search, Pageable pageable);
 
@@ -128,7 +128,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -142,6 +141,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a " +
                     "ORDER BY ?#{#sort}")
     List<CreditReport> find(@Param("search") SearchCreditRequest search, @Param("sort") Sort sort);
@@ -180,7 +180,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -195,6 +194,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a " +
                     "ORDER BY ?#{#sort}")
     List<CreditReport> findSub(@Param("search") SearchCreditRequest search, @Param("sort") Sort sort);
@@ -233,7 +233,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -247,6 +246,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
@@ -254,7 +254,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -268,6 +267,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a")
     Page<CreditReport> findByCampaignGroupPageable(@Param("search") SearchCreditRequest search, Pageable pageable);
@@ -306,7 +306,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -320,6 +319,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a " +
                     "ORDER BY ?#{#sort}")
@@ -359,7 +359,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -373,6 +372,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
@@ -380,7 +380,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -394,6 +393,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a")
     Page<CreditReport> findByUserGroupPageable(@Param("search") SearchCreditRequest search, Pageable pageable);
@@ -432,7 +432,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -446,6 +445,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a " +
                     "ORDER BY ?#{#sort}")
@@ -485,7 +485,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -499,6 +498,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
@@ -506,7 +506,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -520,6 +519,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a")
     Page<CreditReport> findByCampaignAndUserGroupPageable(@Param("search") SearchCreditRequest search, Pageable pageable);
@@ -558,7 +558,6 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
                     "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "    INNER JOIN organization_mapping_info omi ON omi.father_organization_id IN :#{#search.organizationIds} AND IF(:#{#search.matchUser},ui.organization_id = omi.child_organization_id,uc.organization_id = omi.child_organization_id) " +
                     "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
@@ -572,6 +571,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a " +
                     "ORDER BY ?#{#sort}")

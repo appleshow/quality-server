@@ -1,6 +1,5 @@
 package com.aps.quality.model.credit;
 
-import com.aps.quality.entity.UserInfo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,12 +10,11 @@ import java.util.Date;
 public class ImportCreditRequest implements Serializable {
     private String campaignType;
     private String campaignName;
+    private Integer userId;
     private String userCode;
     private String userName;
     private BigDecimal credit;
     private Date creditTime;
     private String instructor;
     private String remark;
-
-    private UserInfo userInfo;
 }
