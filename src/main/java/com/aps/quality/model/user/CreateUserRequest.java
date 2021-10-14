@@ -51,6 +51,9 @@ public class CreateUserRequest implements Serializable {
             return ErrorMessage.USER_NAME_IS_NULL;
         }
 
+        userCode = userCode.trim();
+        userName = userName.trim();
+
         return ErrorMessage.NULL;
     }
 }

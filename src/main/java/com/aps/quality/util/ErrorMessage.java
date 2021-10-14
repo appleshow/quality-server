@@ -64,6 +64,7 @@ public enum ErrorMessage {
     IMPORT_FILE_USER_GENDER_NULL(12022, "上传文件中 学生性别 不能为空"),
     USER_HAS_CREDIT(13001, "用户存在学分数据"),
     CHANGE_ORGANIZATION_MUST_IN_SAME_LEVEL(13002, "只能在相同级别的组织中变更"),
+    USER_CODE_NOT_MATCH_USERNAME(13003, "学生学号和学生姓名不匹配"),
 
     SSO_RESPONSE_STATE_INVALID(50001, "返回state无效"),
     SSO_RESPONSE_CODE_EMPTY(50002, "返回code为空"),

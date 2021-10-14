@@ -72,8 +72,16 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         }
 
         if (null == request.getUserId()) {
-            request.setUserId(createUser(request.getUserCode(), request.getUserName(), request.getUserGender(),
-                    request.getUserPhone(), request.getOrganizationId(), request.getAtr1()));
+            final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
+            if (request.getOrganizationId().compareTo(currentUserOrganizationId) < 0) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, request.getUserCode());
+            }
+            final UserInfo userInfo = createUser(request.getUserCode(), request.getUserName(), request.getUserGender(),
+                    request.getUserPhone(), request.getOrganizationId(), request.getAtr1());
+            if (!request.getOrganizationId().equals(userInfo.getOrganizationId())) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, request.getUserCode());
+            }
+            request.setUserId(userInfo.getUserId());
         }
 
         final CreditInfo creditInfo = new CreditInfo();
@@ -114,8 +122,16 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         }
 
         if (null == request.getUserId()) {
-            request.setUserId(createUser(request.getUserCode(), request.getUserName(), request.getUserGender(),
-                    request.getUserPhone(), request.getOrganizationId(), request.getAtr1()));
+            final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
+            if (request.getOrganizationId().compareTo(currentUserOrganizationId) < 0) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, request.getUserCode());
+            }
+            final UserInfo userInfo = createUser(request.getUserCode(), request.getUserName(), request.getUserGender(),
+                    request.getUserPhone(), request.getOrganizationId(), request.getAtr1());
+            if (!request.getOrganizationId().equals(userInfo.getOrganizationId())) {
+                return new ResponseData(ErrorMessage.ORGANIZATION_NOT_MATCH, request.getUserCode());
+            }
+            request.setUserId(userInfo.getUserId());
         }
 
         BeanUtils.copyProperties(request, creditInfo, DataUtil.getNullPropertyNames(request));
@@ -502,7 +518,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                 try {
                     request.setCreditTime(simpleDateFormat.parse(creditDate));
                 } catch (ParseException e) {
-                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_INVALID, String.format("第 %d 行数据", row + 1));
+                    return new ResponseData(ErrorMessage.IMPORT_FILE_CREDIT_TIME_INVALID, String.format("行号 %d", row + 1));
                 }
 
                 request.setInstructor(ExcelUtil.getCellFormatValue(sheet, row, 6).trim());
@@ -511,8 +527,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                 requestList.add(request);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return new ResponseData(ErrorMessage.RUNTIME_EXCEPTION, e.getMessage());
+            log.error("Find Data form excel got an error: {}", e);
+            return new ResponseData(ErrorMessage.RUNTIME_EXCEPTION, StringUtils.hasLength(e.getMessage()) ? e.getMessage() : e.getClass().getName());
         }
 
         if (requestList.isEmpty()) {
@@ -523,6 +539,9 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             if (null == userInfo) {
                 return new ResponseData(ErrorMessage.USER_NOT_EXIST, r.getUserCode());
             } else {
+                if (null == userInfo.getUserName() || !userInfo.getUserName().equals(r.getUserName())) {
+                    return new ResponseData(ErrorMessage.USER_CODE_NOT_MATCH_USERNAME, r.getUserCode());
+                }
                 final String currentUserType = DataUtil.getAuthorityUserType();
                 final Integer currentUserOrganizationId = DataUtil.getAuthorityOrganizationId();
                 if (Const.UserType.FACULTY.equals(currentUserType) || Const.UserType.CLASS.equals(currentUserType)) {
@@ -568,16 +587,16 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         return new ResponseData<>(certificateInfoMapper.mapAsList(certificateInfoList, CertificateInfoDto.class));
     }
 
-    private Integer createUser(String userCode, String userName, String userGender, String userPhone, Integer organizationId, String atr1) {
+    private UserInfo createUser(String userCode, String userName, String userGender, String userPhone, Integer organizationId, String atr1) {
         log.info("call createUser: {}", userCode);
         final UserInfo userInfoCheck = userInfoRepository.findByUserCode(userCode).orElse(null);
         if (null != userInfoCheck) {
-            return userInfoCheck.getUserId();
+            return userInfoCheck;
         }
 
         final UserInfo userInfo = new UserInfo();
-        userInfo.setUserCode(userCode);
-        userInfo.setUserName(userName);
+        userInfo.setUserCode(userCode.trim());
+        userInfo.setUserName(userName.trim());
         userInfo.setUserPassword(passwordEncoder.encode(userCode));
         userInfo.setUserGender(userGender);
         userInfo.setUserPhone(userPhone);
@@ -589,7 +608,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         log.info("call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
 
-        return userInfo.getUserId();
+        return userInfo;
     }
 
     private void searchCheck(final SearchCreditRequest request) {

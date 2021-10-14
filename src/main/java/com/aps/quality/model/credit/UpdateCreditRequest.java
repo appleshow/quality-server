@@ -57,6 +57,9 @@ public class UpdateCreditRequest implements Serializable {
         if (null == userId && !StringUtils.hasLength(userCode)) {
             return ErrorMessage.STUDENT_CODE_IS_NULL;
         }
+        if (null == organizationId) {
+            return ErrorMessage.ORGANIZATION_ID_INVALID;
+        }
         if (null == version) {
             return ErrorMessage.VERSION_IS_NULL;
         }

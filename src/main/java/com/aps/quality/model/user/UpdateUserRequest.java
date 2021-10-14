@@ -54,6 +54,8 @@ public class UpdateUserRequest implements Serializable {
         if (null == version) {
             return ErrorMessage.VERSION_IS_NULL;
         }
+        userCode = userCode.trim();
+        userName = userName.trim();
 
         return ErrorMessage.NULL;
     }

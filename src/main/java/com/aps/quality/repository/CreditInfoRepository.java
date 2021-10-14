@@ -70,6 +70,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a",
             countQuery = "SELECT COUNT(a.creditId) FROM ( " +
@@ -90,6 +91,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a")
     Page<CreditReport> findPageable(@Param("search") SearchCreditRequest search, Pageable pageable);
@@ -141,6 +143,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a " +
                     "ORDER BY ?#{#sort}")
@@ -194,6 +197,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     ") a " +
                     "ORDER BY ?#{#sort}")
@@ -246,6 +250,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a",
@@ -267,6 +272,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a")
@@ -319,6 +325,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type, ci.campaign_name" +
                     ") a " +
@@ -372,6 +379,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a",
@@ -393,6 +401,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a")
@@ -445,6 +454,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.user_id" +
                     ") a " +
@@ -498,6 +508,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a",
@@ -519,6 +530,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a")
@@ -571,6 +583,7 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
                     "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
+                    "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
                     "  GROUP BY ci.campaign_type,ci.campaign_name, ci.user_id" +
                     ") a " +
