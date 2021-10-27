@@ -358,9 +358,23 @@ public abstract class Const {
             return false;
         }
 
-        public static boolean canBeRejected(Integer status) {
+        public static boolean canBeApproved(Integer status) {
             if (null == status) {
                 return false;
+            }
+            if (!APPROVED.getCode().equals(status)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static boolean canBeRejected(Integer status, String userType) {
+            if (null == status) {
+                return false;
+            }
+            if (UserType.ADMIN.equals(userType) || UserType.MASTER.equals(userType)) {
+                return true;
             }
             if (SUBMIT.getCode().compareTo(status) <= 0 && !APPROVED.getCode().equals(status)) {
                 return true;
@@ -706,7 +720,7 @@ public abstract class Const {
             if (!StringUtils.hasLength(userType)) {
                 return false;
             }
-            if (ADMIN.equals(userType) || MASTER.equals(userType) || CHIEF.equals(userType) || YLC_L2.equals(userType) || FACULTY.equals(userType)) {
+            if (ADMIN.equals(userType) || MASTER.equals(userType) || CHIEF.equals(userType) || FACULTY.equals(userType)) {
                 return true;
             }
             return false;
@@ -716,7 +730,7 @@ public abstract class Const {
             if (ADMIN.equals(userType) || MASTER.equals(userType) || CHIEF.equals(userType)) {
                 return CreditStatus.APPROVED;
             }
-            if (YLC_L2.equals(userType) || FACULTY.equals(userType)) {
+            if (FACULTY.equals(userType)) {
                 return CreditStatus.APPROVING;
             }
 

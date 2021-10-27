@@ -234,7 +234,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
     @Override
     public ResponseData<Boolean> reject(RejectRequest request) {
         log.info("call reject(): {}", request);
-        if (!Const.UserType.canBeApprove(DataUtil.getAuthorityUserType())) {
+        final String currentUserType = DataUtil.getAuthorityUserType();
+        if (!Const.UserType.canBeApprove(currentUserType)) {
             return new ResponseData<>(ErrorMessage.INSUFFICIENT_PERMISSIONS);
         }
         if (null == request.getRequests()) {
@@ -254,7 +255,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditIdList.forEach(creditId -> {
                 final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
                 final Integer creditStatus = creditInfo.getStatus();
-                if (null != creditInfo && Const.CreditStatus.canBeRejected(creditInfo.getStatus())) {
+                if (null != creditInfo && Const.CreditStatus.canBeRejected(creditInfo.getStatus(), currentUserType)) {
                     creditInfo.setStatus(Const.CreditStatus.REJECT.getCode());
                     creditInfo.setAtr1(request.getReason());
                     creditInfo.setAtr2(DataUtil.getAuthorityUserName());
@@ -301,7 +302,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditIdList.forEach(creditId -> {
                 final CreditInfo creditInfo = creditInfoRepository.findById(creditId).orElse(null);
                 final Integer creditStatus = creditInfo.getStatus();
-                if (null != creditInfo && Const.CreditStatus.canBeRejected(creditInfo.getStatus())) {
+                if (null != creditInfo && Const.CreditStatus.canBeApproved(creditInfo.getStatus())) {
                     creditInfo.setStatus(Const.UserType.getCreditStatus(userType).getCode());
                     creditInfoRepository.save(creditInfo);
 
@@ -485,6 +486,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             response.init();
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             for (int row = 1; row <= maxRows; row++) {
+                log.info("Deal with Row: {}", row);
                 final ImportCreditRequest request = new ImportCreditRequest();
                 request.setCampaignType(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
                 if (!StringUtils.hasLength(request.getCampaignType())) {
