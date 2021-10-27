@@ -466,6 +466,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<ImportResponse> importCredit(MultipartFile file) {
+        int currentRow = 0;
         final ImportResponse response = new ImportResponse();
         final List<ImportCreditRequest> requestList = new ArrayList<>();
         final int maxRows = 1000;
@@ -488,6 +489,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             for (int row = 1; row <= maxRows; row++) {
                 log.info("Deal with Row: {}", row);
                 final ImportCreditRequest request = new ImportCreditRequest();
+
+                currentRow = row;
                 request.setCampaignType(ExcelUtil.getCellFormatValue(sheet, row, 0).trim());
                 if (!StringUtils.hasLength(request.getCampaignType())) {
                     continue;
@@ -529,8 +532,8 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
                 requestList.add(request);
             }
         } catch (Exception e) {
-            log.error("Find Data form excel got an error: {}", e);
-            return new ResponseData(ErrorMessage.RUNTIME_EXCEPTION, StringUtils.hasLength(e.getMessage()) ? e.getMessage() : e.getClass().getName());
+            log.error("Find Data form excel got an error: {}, {}", currentRow, e);
+            return new ResponseData(ErrorMessage.RUNTIME_EXCEPTION, StringUtils.hasLength(e.getMessage()) ? String.format("%d,%s", currentRow, e.getMessage()) : String.format("%d,%s", currentRow, e.getClass().getName()));
         }
 
         if (requestList.isEmpty()) {
