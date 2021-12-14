@@ -567,6 +567,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditInfo.setCampaignName(r.getCampaignName());
             creditInfo.setCredit(r.getCredit());
             creditInfo.setCreditTime(r.getCreditTime());
+            creditInfo.setInstructor(r.getInstructor());
             creditInfo.setFlag(Const.NO);
             creditInfo.setRemark(r.getRemark());
             creditInfo.setStatus(Const.CreditStatus.DRAFT.getCode());
