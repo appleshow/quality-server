@@ -372,10 +372,13 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         request.init();
 
         searchCheck(request);
-
-        final Sort sort = request.getDefaultSort(new Sort.Order(Sort.Direction.DESC, "createTime"));
+        if (request.isGroupByCampaign() && StringUtils.hasLength(request.getCampaignName())) {
+            request.setCampaignName(request.getCampaignName().replace("%", ""));
+        }
         log.info("call creditInfoRepository.findSub()");
-        return new ResponseData<>(creditInfoRepository.findSub(request, sort));
+        final List<CreditReport> creditReportList = creditInfoRepository.findSub(request);
+
+        return new ResponseData<>(creditReportList);
     }
 
     @Override

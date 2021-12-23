@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +60,9 @@ public class UserServiceImpl extends OperationLogService implements UserService 
     private UserInfoMapper userInfoMapper;
     @Resource
     private UserInfoConciseMapper userInfoConciseMapper;
+
+    @Resource
+    private TokenStore tokenStore;
 
     @Override
     public ResponseData<Boolean> create(final CreateUserRequest request) {
@@ -178,6 +182,11 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_PASSWORD, userInfo.getUserCode(), "Reset Password by ID");
 
+        try {
+            tokenStore.findTokensByClientIdAndUserName(Const.UserPrefix.PORTAL.getClientId(), userInfo.getUserCode()).forEach(t -> tokenStore.removeAccessToken(t));
+        } catch (Exception e) {
+            log.error("removeAccessToken got an error: {}", e);
+        }
         return new ResponseData<>(true);
     }
 

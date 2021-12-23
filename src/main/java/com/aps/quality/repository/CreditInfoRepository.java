@@ -182,26 +182,25 @@ public interface CreditInfoRepository extends JpaRepository<CreditInfo, Integer>
                     "         ci.create_time AS createTime" +
                     "  FROM credit_info ci " +
                     "    INNER JOIN user_info ui ON ci.user_id = ui.user_id " +
-                    "    INNER JOIN user_info uc ON ci.create_by = uc.user_code " +
-                    "  WHERE IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
+                    "    INNER JOIN user_info uc ON uc.user_code = ci.create_by " +
+                    "  WHERE IF(ISNULL(:#{#search.campaignName}),    1,ci.campaign_name = :#{#search.campaignName}) " +
+                    "    AND IF(ISNULL(:#{#search.campaignType}),    1,ci.campaign_type = :#{#search.campaignType}) " +
+                    "    AND IF(ISNULL(:#{#search.userId}),          1,ui.user_id = :#{#search.userId}) " +
+                    "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
                     "    AND IF(ISNULL(:#{#search.statusFrom}),      1,ci.status >= :#{#search.statusFrom}) " +
                     "    AND IF(ISNULL(:#{#search.statusTo}),        1,ci.status <= :#{#search.statusTo}) " +
-                    "    AND IF(ISNULL(:#{#search.userId}),          1,ui.user_id = :#{#search.userId}) " +
-                    "    AND IF(ISNULL(:#{#search.creditIds}),       1,ci.credit_id IN :#{#search.creditIds}) " +
+                    //"    AND IF(ISNULL(:#{#search.creditIds}),       1,ci.credit_id IN :#{#search.creditIds}) " +
                     "    AND IF(ISNULL(:#{#search.userCode}),        1,ui.user_code = :#{#search.userCode}) " +
                     "    AND IF(ISNULL(:#{#search.userName}),        1,ui.user_name LIKE :#{#search.userName}) " +
                     "    AND IF(ISNULL(:#{#search.userGender}),      1,ui.user_gender = :#{#search.userGender}) " +
-                    "    AND IF(ISNULL(:#{#search.campaignType}),    1,ci.campaign_type = :#{#search.campaignType}) " +
-                    "    AND IF(ISNULL(:#{#search.campaignName}),    1,ci.campaign_name LIKE :#{#search.campaignName}) " +
+                    "    AND IF(ISNULL(:#{#search.status}),          1,ci.status = :#{#search.status}) " +
                     "    AND IF(ISNULL(:#{#search.instructor}),      1,ci.instructor = :#{#search.instructor}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeFrom}),  1,ci.create_time >= :#{#search.creditTimeFrom}) " +
                     "    AND IF(ISNULL(:#{#search.creditTimeTo}),    1,ci.create_time <= :#{#search.creditTimeTo}) " +
-                    "    AND IF(ISNULL(:#{#search.createBy}),        1,ci.create_by = :#{#search.createBy}) " +
                     "    AND IF(ISNULL(:#{#search.creatorOrganizationId}),1,uc.organization_id = :#{#search.creatorOrganizationId}) " +
                     "    AND IF(:#{#search.ignoreOrganizationIds},   1,ui.organization_id IN :#{#search.organizationIds}) " +
-                    ") a " +
-                    "ORDER BY ?#{#sort}")
-    List<CreditReport> findSub(@Param("search") SearchCreditRequest search, @Param("sort") Sort sort);
+                    ") a ")
+    List<CreditReport> findSub(@Param("search") SearchCreditRequest search);
 
     @Query(nativeQuery = true,
             value = "SELECT a.* FROM ( " +
