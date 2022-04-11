@@ -46,7 +46,7 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
 
     @Override
     public ResponseData<LoginResponse> login(final LoginRequest request) {
-        log.info("call login: {}", request.desensitization());
+        log.info("Call login: {}", request.desensitization());
 
         final LoginResponse loginResponse = new LoginResponse();
         final MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
@@ -71,7 +71,7 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
             return new ResponseData(!StringUtils.hasLength(e.getMessage()) ? ErrorMessage.FAIL_TO_GET_TOKEN.getDescription() : e.getMessage());
         }
 
-        log.info("call userWithGroupRepository.findByCode({})", request.getUserCode());
+        log.info("Call userWithGroupRepository.findByCode({})", request.getUserCode());
         final UserInfo user = userInfoRepository.findByUserCode(request.getUserCode()).orElse(null);
         if (null != user) {
             if (Const.Status.INVALID.equalWithCode(user.getStatus())) {
@@ -92,9 +92,9 @@ public class OauthServiceImpl extends OperationLogService implements OauthServic
 
     @Override
     public ResponseData<Boolean> logout(String token) {
-        log.info("call logout()");
+        log.info("Call logout()");
         if (StringUtils.hasLength(token)) {
-            log.info("call tokenStore.removeAccessToken()");
+            log.info("Call tokenStore.removeAccessToken()");
             tokenStore.removeAccessToken(tokenStore.readAccessToken(token.replace("Bearer", "").trim()));
         }
 

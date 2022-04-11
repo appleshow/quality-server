@@ -64,7 +64,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> create(final CreateCreditRequest request) {
-        log.info("call create()");
+        log.info("Call create()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -95,7 +95,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditInfo.setCreditMonth(calendar.get(Calendar.MONTH) + 1);
         }
 
-        log.info("call creditInfoRepository.save()");
+        log.info("Call creditInfoRepository.save()");
         creditInfo.beforeSave();
         creditInfoRepository.save(creditInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.CREDIT, String.valueOf(creditInfo.getCreditId()), request);
@@ -107,7 +107,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> update(final UpdateCreditRequest request) {
-        log.info("call update()");
+        log.info("Call update()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -144,7 +144,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
             creditInfo.setCreditMonth(calendar.get(Calendar.MONTH) + 1);
         }
 
-        log.info("call creditInfoRepository.save()");
+        log.info("Call creditInfoRepository.save()");
         creditInfo.beforeSave();
         creditInfoRepository.save(creditInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.CAMPAIGN, String.valueOf(request.getCreditId()), request);
@@ -156,7 +156,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> delete(Integer id) {
-        log.info("call delete()");
+        log.info("Call delete()");
 
         final CreditInfo creditInfo = creditInfoRepository.findById(id).orElse(null);
         if (null == creditInfo) {
@@ -198,7 +198,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> submit(final List<SubmitRequest> requests) {
-        log.info("call submit(): {}", requests);
+        log.info("Call submit(): {}", requests);
         if (null == requests) {
             return new ResponseData<>(true);
         }
@@ -233,7 +233,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> reject(RejectRequest request) {
-        log.info("call reject(): {}", request);
+        log.info("Call reject(): {}", request);
         final String currentUserType = DataUtil.getAuthorityUserType();
         if (!Const.UserType.canBeApprove(currentUserType)) {
             return new ResponseData<>(ErrorMessage.INSUFFICIENT_PERMISSIONS);
@@ -279,7 +279,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> approve(List<SubmitRequest> requests) {
-        log.info("call approve():", requests);
+        log.info("Call approve():", requests);
         final String userType = DataUtil.getAuthorityUserType();
 
         if (!Const.UserType.canBeApprove(userType)) {
@@ -323,59 +323,59 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Page<CreditReport>> findPageable(final SearchCreditRequest request) {
-        log.info("call findPageable(): {}", request);
+        log.info("Call findPageable(): {}", request);
         request.init();
 
         searchCheck(request);
 
         final Pageable pageable = request.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
         if (request.isGroupByCampaign() && request.isGroupByUser()) {
-            log.info("call creditInfoRepository.findByCampaignAndUserGroupPageable()");
+            log.info("Call creditInfoRepository.findByCampaignAndUserGroupPageable()");
             return new ResponseData<>(creditInfoRepository.findByCampaignAndUserGroupPageable(request, pageable));
         } else if (request.isGroupByCampaign()) {
-            log.info("call creditInfoRepository.findByCampaignGroupPageable()");
+            log.info("Call creditInfoRepository.findByCampaignGroupPageable()");
             return new ResponseData<>(creditInfoRepository.findByCampaignGroupPageable(request, pageable));
         } else if (request.isGroupByUser()) {
-            log.info("call creditInfoRepository.findByUserGroupPageable()");
+            log.info("Call creditInfoRepository.findByUserGroupPageable()");
             return new ResponseData<>(creditInfoRepository.findByUserGroupPageable(request, pageable));
         } else {
-            log.info("call creditInfoRepository.findPageable()");
+            log.info("Call creditInfoRepository.findPageable()");
             return new ResponseData<>(creditInfoRepository.findPageable(request, pageable));
         }
     }
 
     @Override
     public ResponseData<List<CreditReport>> find(final SearchCreditRequest request) {
-        log.info("call find(): {}", request);
+        log.info("Call find(): {}", request);
         request.init();
 
         searchCheck(request);
         final Sort sort = request.getDefaultSort(new Sort.Order(Sort.Direction.DESC, "createTime"));
         if (request.isGroupByCampaign() && request.isGroupByUser()) {
-            log.info("call creditInfoRepository.findByCampaignAndUserGroup()");
+            log.info("Call creditInfoRepository.findByCampaignAndUserGroup()");
             return new ResponseData<>(creditInfoRepository.findByCampaignAndUserGroup(request, sort));
         } else if (request.isGroupByCampaign()) {
-            log.info("call creditInfoRepository.findByCampaignGroup()");
+            log.info("Call creditInfoRepository.findByCampaignGroup()");
             return new ResponseData<>(creditInfoRepository.findByCampaignGroup(request, sort));
         } else if (request.isGroupByUser()) {
-            log.info("call creditInfoRepository.findByUserGroup()");
+            log.info("Call creditInfoRepository.findByUserGroup()");
             return new ResponseData<>(creditInfoRepository.findByUserGroup(request, sort));
         } else {
-            log.info("call creditInfoRepository.find()");
+            log.info("Call creditInfoRepository.find()");
             return new ResponseData<>(creditInfoRepository.find(request, sort));
         }
     }
 
     @Override
     public ResponseData<List<CreditReport>> findSub(SearchCreditRequest request) {
-        log.info("call findSub(): {}", request);
+        log.info("Call findSub(): {}", request);
         request.init();
 
         searchCheck(request);
         if (request.isGroupByCampaign() && StringUtils.hasLength(request.getCampaignName())) {
             request.setCampaignName(request.getCampaignName().replace("%", ""));
         }
-        log.info("call creditInfoRepository.findSub()");
+        log.info("Call creditInfoRepository.findSub()");
         final List<CreditReport> creditReportList = creditInfoRepository.findSub(request);
 
         return new ResponseData<>(creditReportList);
@@ -386,7 +386,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         final String fileOriginalName = file.getOriginalFilename();
         final String[] fileTypes = fileOriginalName.split("\\.");
 
-        log.info("call upload(): {}", fileOriginalName);
+        log.info("Call upload(): {}", fileOriginalName);
         final ErrorMessage check = checkUploadImage(file);
         if (null != check) {
             return new ResponseData<>(check);
@@ -408,7 +408,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> removeUploadFile(RemoveUploadRequest request) {
-        log.info("call removeUploadFile(): {}", request);
+        log.info("Call removeUploadFile(): {}", request);
         fileActions.stream()
                 .filter(a -> a.isMatch(fileActionChannel))
                 .findAny()
@@ -420,7 +420,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<Boolean> useUploadFile(List<UseUploadRequest> requests) {
-        log.info("call useUploadFile(): {}", requests);
+        log.info("Call useUploadFile(): {}", requests);
         if (null == requests) {
             return new ResponseData<>(true);
         }
@@ -590,14 +590,14 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
 
     @Override
     public ResponseData<List<CertificateInfoDto>> findSubCertification(Integer creditId) {
-        log.info("call findSubCertification(): {}", creditId);
+        log.info("Call findSubCertification(): {}", creditId);
         final List<CertificateInfo> certificateInfoList = certificateInfoRepository.findByCreditId(creditId).orElse(new ArrayList<>());
 
         return new ResponseData<>(certificateInfoMapper.mapAsList(certificateInfoList, CertificateInfoDto.class));
     }
 
     private UserInfo createUser(String userCode, String userName, String userGender, String userPhone, Integer organizationId, String atr1) {
-        log.info("call createUser: {}", userCode);
+        log.info("Call createUser: {}", userCode);
         final UserInfo userInfoCheck = userInfoRepository.findByUserCode(userCode).orElse(null);
         if (null != userInfoCheck) {
             return userInfoCheck;
@@ -614,7 +614,7 @@ public class CreditServiceImpl extends OperationLogService implements CreditServ
         userInfo.setAtr1(atr1);
         userInfo.setStatus(1);
 
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
 
         return userInfo;

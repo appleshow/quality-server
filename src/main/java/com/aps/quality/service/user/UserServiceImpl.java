@@ -66,7 +66,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> create(final CreateUserRequest request) {
-        log.info("call create()");
+        log.info("Call create()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -86,7 +86,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         userInfo.setUserType(findUserType(organizationInfo));
         userInfo.setStatus(Const.Status.NORMAL.getCode());
 
-        log.info("call  userInfoRepository.save()");
+        log.info("Call  userInfoRepository.save()");
         userInfo.beforeSave();
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.USER, request.getUserCode(), request);
@@ -96,7 +96,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> update(final UpdateUserRequest request) {
-        log.info("call update()");
+        log.info("Call update()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -126,7 +126,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
 
         BeanUtils.copyProperties(request, userInfo, DataUtil.getNullPropertyNames(request));
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfo.beforeSave();
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER, userInfo.getUserCode(), request);
@@ -136,7 +136,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> invalid(final Integer id) {
-        log.info("call invalid({})", id);
+        log.info("Call invalid({})", id);
 
         final UserInfo userInfo = userInfoRepository.findById(id).orElse(null);
         if (null == userInfo) {
@@ -144,7 +144,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         }
         userInfo.setStatus(Const.Status.INVALID.getCode());
 
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.Status.INVALID.getDescription());
 
@@ -153,7 +153,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> enable(Integer id) {
-        log.info("call invalid({})", id);
+        log.info("Call invalid({})", id);
 
         final UserInfo userInfo = userInfoRepository.findById(id).orElse(null);
         if (null == userInfo) {
@@ -161,7 +161,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         }
         userInfo.setStatus(Const.Status.NORMAL.getCode());
 
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, userInfo.getUserCode(), Const.Status.NORMAL.getDescription());
 
@@ -170,7 +170,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> resetPassword(Integer id) {
-        log.info("call resetPassword({})", id);
+        log.info("Call resetPassword({})", id);
 
         final UserInfo userInfo = userInfoRepository.findById(id).orElse(null);
         if (null == userInfo) {
@@ -178,7 +178,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
         }
         userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserCode()));
 
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_PASSWORD, userInfo.getUserCode(), "Reset Password by ID");
 
@@ -192,7 +192,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> delete(Integer id) {
-        log.info("call delete({})", id);
+        log.info("Call delete({})", id);
 
         if (creditInfoRepository.countByUserId(id).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.USER_HAS_CREDIT);
@@ -206,7 +206,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Boolean> setPassword(final ResetPasswordRequest request) {
-        log.info("call setPassword()");
+        log.info("Call setPassword()");
 
         final UserInfo userInfo = userInfoRepository.findById(DataUtil.getAuthorityUserId()).orElse(null);
         if (null == userInfo) {
@@ -221,7 +221,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
             return new ResponseData(ErrorMessage.NEW_PASSWORD_SAME_OLD);
         }
 
-        log.info("call userInfoRepository.save()");
+        log.info("Call userInfoRepository.save()");
         userInfoRepository.save(userInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_PASSWORD, userInfo.getUserCode(), "Set New Password");
 
@@ -308,11 +308,11 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<Page<UserInfoDto>> findPageable(final SearchUserRequest request) {
-        log.info("call findPageable(): {}", request);
+        log.info("Call findPageable(): {}", request);
         request.init();
 
         final Pageable pageable = request.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
-        log.info("call userInfoRepository.findPageable()");
+        log.info("Call userInfoRepository.findPageable()");
         final Page<UserInfo> userInfoPage = userInfoRepository.findPageable(request, pageable);
 
         return new ResponseData<>(request.exchange(userInfoMapper, userInfoPage, pageable, UserInfoDto.class));
@@ -320,10 +320,10 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<List<UserInfoDto>> find(final SearchUserRequest request) {
-        log.info("call find(): {}", request);
+        log.info("Call find(): {}", request);
         request.init();
 
-        log.info("call userInfoRepository.find()");
+        log.info("Call userInfoRepository.find()");
         final List<UserInfo> userInfos = userInfoRepository.find(request);
 
         return new ResponseData<>(userInfoMapper.mapAsList(userInfos, UserInfoDto.class));
@@ -331,9 +331,9 @@ public class UserServiceImpl extends OperationLogService implements UserService 
 
     @Override
     public ResponseData<List<UserConciseDto>> findApproval() {
-        log.info("call findApproval()");
+        log.info("Call findApproval()");
 
-        log.info("call userInfoConciseRepository.findApproval()");
+        log.info("Call userInfoConciseRepository.findApproval()");
         final List<UserConcise> userConcises = userInfoConciseRepository.findApproval();
 
         return new ResponseData<>(userInfoConciseMapper.mapAsList(userConcises, UserConciseDto.class));
@@ -371,7 +371,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
     }
 
     private void removeUserExtendInfo(Integer userId) {
-        log.info("call removeUserExtendInfo({})", userId);
+        log.info("Call removeUserExtendInfo({})", userId);
         userOrganizationInfoRepository.findByUserId(userId).ifPresent(uos -> uos.forEach(uo -> userOrganizationInfoRepository.delete(uo)));
         userRoleInfoRepository.findByUserId(userId).ifPresent(urs -> urs.forEach(ur -> userRoleInfoRepository.delete(ur)));
     }
@@ -383,7 +383,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
                 userOrganizationInfo.setUserId(userId);
                 userOrganizationInfo.setOrganizationId(organizationId);
                 userOrganizationInfo.beforeSave();
-                log.info("call userOrganizationInfoRepository.save()");
+                log.info("Call userOrganizationInfoRepository.save()");
                 userOrganizationInfoRepository.save(userOrganizationInfo);
                 saveLog(Const.OperationType.UPDATE, Const.OperationSubType.ASSIGN_GROUP_TO_USER, String.format("%d,%d", organizationId, userId), null);
             });
@@ -395,7 +395,7 @@ public class UserServiceImpl extends OperationLogService implements UserService 
                 userRoleInfo.setUserId(userId);
                 userRoleInfo.setRoleId(roleId);
                 userRoleInfo.beforeSave();
-                log.info("call userRoleInfoRepository.save()");
+                log.info("Call userRoleInfoRepository.save()");
                 userRoleInfoRepository.save(userRoleInfo);
                 saveLog(Const.OperationType.UPDATE, Const.OperationSubType.ASSIGN_GROUP_TO_USER, String.format("%d,%d", roleId, userId), null);
             });

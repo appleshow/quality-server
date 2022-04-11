@@ -337,7 +337,7 @@ public abstract class Const {
         }
 
         public static CreditStatus findByCode(Integer code) {
-            Optional<CreditStatus> status = Arrays.stream(CreditStatus.values())
+            final Optional<CreditStatus> status = Arrays.stream(CreditStatus.values())
                     .filter(d -> null != code && d.getCode().equals(code))
                     .findAny();
             if (status.isPresent()) {

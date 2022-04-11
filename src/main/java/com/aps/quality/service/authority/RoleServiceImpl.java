@@ -39,7 +39,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<RoleInfoDto> create(CreateRoleRequest request) {
-        log.info("call create(): {}", request);
+        log.info("Call create(): {}", request);
         if (!StringUtils.hasLength(request.getRoleName())) {
             return new ResponseData<>(ErrorMessage.ROLE_NAME_IS_NULL);
         }
@@ -54,7 +54,7 @@ public class RoleServiceImpl implements RoleService {
         }
         final RoleInfo roleInfo = roleInfoMapper.map(request, RoleInfo.class);
 
-        log.info("call roleInfoRepository.save()");
+        log.info("Call roleInfoRepository.save()");
         roleInfoRepository.save(roleInfo);
 
         return new ResponseData<>(roleInfoMapper.map(roleInfo, RoleInfoDto.class));
@@ -62,7 +62,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<RoleInfoDto> update(UpdateRoleRequest request) {
-        log.info("call update(): {}", request);
+        log.info("Call update(): {}", request);
         if (null == request.getRoleId()) {
             return new ResponseData<>(ErrorMessage.ID_CAN_NOT_BE_NULL);
         }
@@ -83,21 +83,21 @@ public class RoleServiceImpl implements RoleService {
         final RoleInfo roleInfo = new RoleInfo();
         BeanUtils.copyProperties(request, roleInfo, DataUtil.getNullPropertyNames(request));
 
-        log.info("call roleInfoRepository.save()");
+        log.info("Call roleInfoRepository.save()");
         roleInfoRepository.save(roleInfo);
 
         final List<GroupRoleInfo> groupRoleInfoList = groupRoleInfoRepository.findByRoleId(request.getRoleId());
         if (null != groupRoleInfoList && !groupRoleInfoList.isEmpty()) {
             groupRoleInfoList.stream().forEach(gr -> gr.setStatus(roleInfo.getStatus()));
 
-            log.info("call groupRoleInfoRepository.saveAll()");
+            log.info("Call groupRoleInfoRepository.saveAll()");
             groupRoleInfoRepository.saveAll(groupRoleInfoList);
         }
         final List<UserRoleInfo> userRoleInfoList = userRoleInfoRepository.findByRoleId(request.getRoleId()).orElse(new ArrayList<>());
         if (!userRoleInfoList.isEmpty()) {
             userRoleInfoList.stream().forEach(ur -> ur.setStatus(roleInfo.getStatus()));
 
-            log.info("call userRoleInfoRepository.saveAll()");
+            log.info("Call userRoleInfoRepository.saveAll()");
             userRoleInfoRepository.saveAll(userRoleInfoList);
         }
 
@@ -113,7 +113,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<Boolean> assignRoleToGroup(AssignRoleToGroupRequest request) {
-        log.info("call assignRoleToGroup(): {}", request);
+        log.info("Call assignRoleToGroup(): {}", request);
         final RoleInfo roleInfo = roleInfoRepository.findById(request.getRoleId()).orElse(null);
         if (null == roleInfo) {
             return new ResponseData<>(ErrorMessage.ROLE_NOT_EXIST);
@@ -131,7 +131,7 @@ public class RoleServiceImpl implements RoleService {
         groupRoleInfo.setRoleId(request.getRoleId());
         groupRoleInfo.setStatus(roleInfo.getStatus());
 
-        log.info("call groupRoleInfoRepository.save()");
+        log.info("Call groupRoleInfoRepository.save()");
         groupRoleInfoRepository.save(groupRoleInfo);
 
         return new ResponseData<>(true);
@@ -139,7 +139,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<Boolean> assignRoleToUser(AssignRoleToUserRequest request) {
-        log.info("call assignRoleToUser(): {}", request);
+        log.info("Call assignRoleToUser(): {}", request);
         final RoleInfo roleInfo = roleInfoRepository.findById(request.getRoleId()).orElse(null);
         if (null == roleInfo) {
             return new ResponseData<>(ErrorMessage.ROLE_NOT_EXIST);
@@ -157,7 +157,7 @@ public class RoleServiceImpl implements RoleService {
         userRoleInfo.setRoleId(request.getRoleId());
         userRoleInfo.setStatus(roleInfo.getStatus());
 
-        log.info("call userRoleInfoRepository.save()");
+        log.info("Call userRoleInfoRepository.save()");
         userRoleInfoRepository.save(userRoleInfo);
 
         return new ResponseData<>(true);
@@ -165,7 +165,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<Boolean> removeRoleFromGroup(RemoveRoleFromGroupRequest request) {
-        log.info("call removeRoleFromGroup(): {}", request);
+        log.info("Call removeRoleFromGroup(): {}", request);
         final List<GroupRoleInfo> groupRoleInfoList = groupRoleInfoRepository.findByGroupIdAndRoleId(request.getGroupId(), request.getRoleId());
         if (null != groupRoleInfoList) {
             groupRoleInfoList.stream().forEach(gr -> groupRoleInfoRepository.delete(gr));
@@ -176,7 +176,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<Boolean> removeRoleFromUser(RemoveRoleFromUserRequest request) {
-        log.info("call removeRoleFromUser(): {}", request);
+        log.info("Call removeRoleFromUser(): {}", request);
         final List<UserRoleInfo> userRoleInfoList = userRoleInfoRepository.findByUserIdAndRoleId(request.getUserId(), request.getRoleId()).orElse(new ArrayList<>());
         userRoleInfoList.stream().forEach(ur -> userRoleInfoRepository.delete(ur));
 
@@ -185,11 +185,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<Page<RoleInfoDto>> findRolePageable(SearchRoleRequest search) {
-        log.info("call findRolePageable(): {}", search);
+        log.info("Call findRolePageable(): {}", search);
         search.init();
 
         final Pageable pageable = search.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
-        log.info("call roleInfoRepository.findPageable()");
+        log.info("Call roleInfoRepository.findPageable()");
         final Page<RoleInfo> auditInfoPage = roleInfoRepository.findPageable(search, pageable);
 
         return new ResponseData<>(search.exchange(roleInfoMapper, auditInfoPage, pageable, RoleInfoDto.class));
@@ -197,10 +197,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseData<List<RoleInfoDto>> findRole(SearchRoleRequest search) {
-        log.info("call findRole(): {}", search);
+        log.info("Call findRole(): {}", search);
         search.init();
 
-        log.info("call roleInfoRepository.find()");
+        log.info("Call roleInfoRepository.find()");
         final List<RoleInfo> roleInfoList = roleInfoRepository.find(search);
 
         return new ResponseData<>(roleInfoMapper.mapAsList(roleInfoList, RoleInfoDto.class));

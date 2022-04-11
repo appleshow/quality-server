@@ -16,6 +16,8 @@ public class UpdateOrganizationRequest implements Serializable {
     private String organizationName;
     @ApiModelProperty(name = "organizationType", required = false, example = "", notes = "组织类型")
     private String organizationType;
+    @ApiModelProperty(name = "newFatherOrganizationId", required = false, example = "", notes = "新父组织ID")
+    private Integer newFatherOrganizationId;
     @ApiModelProperty(name = "flag", required = true, example = "Y", notes = "标志")
     private String flag;
     @ApiModelProperty(name = "status", required = true, example = "1", notes = "状态")

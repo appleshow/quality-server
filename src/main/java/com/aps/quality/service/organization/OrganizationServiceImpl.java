@@ -46,13 +46,13 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<Boolean> create(CreateOrganizationRequest request) {
-        log.info("call create()");
+        log.info("Call create()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
             return new ResponseData(check);
         }
-        log.info("call organizationInfoRepository.countByOrganizationName()");
+        log.info("Call organizationInfoRepository.countByOrganizationName()");
         if (organizationInfoRepository.countByOrganizationName(0, request.getFatherOrganizationId(), request.getOrganizationName()).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.NAME_INVALID);
         }
@@ -60,7 +60,7 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
         BeanUtils.copyProperties(request, organizationInfo, DataUtil.getNullPropertyNames(request));
         organizationInfo.setStatus(Const.Status.NORMAL.getCode());
 
-        log.info("call organizationInfoRepository.save()");
+        log.info("Call organizationInfoRepository.save()");
         organizationInfoRepository.save(organizationInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.ORGANIZATION, String.format("%d", organizationInfo.getOrganizationId()), request);
 
@@ -76,7 +76,7 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
             });
             fatherIdsCheck.clear();
             tempIds.forEach(id -> {
-                log.info("call organizationMappingInfoRepository.findByChildOrganizationId({})", id);
+                log.info("Call organizationMappingInfoRepository.findByChildOrganizationId({})", id);
                 final List<OrganizationMappingInfo> organizationMappingInfoList = organizationMappingInfoRepository.findByChildOrganizationIdAndFlag(id, Const.YES).orElse(null);
                 if (null != organizationMappingInfoList && !organizationMappingInfoList.isEmpty()) {
                     organizationMappingInfoList.forEach(om -> fatherIdsCheck.add(om.getFatherOrganizationId()));
@@ -103,7 +103,7 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<Boolean> update(UpdateOrganizationRequest request) {
-        log.info("call update()");
+        log.info("Call update()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -113,12 +113,36 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
         if (null == organizationInfo) {
             return new ResponseData(ErrorMessage.ORGANIZATION_ID_INVALID);
         }
-        log.info("call organizationInfoRepository.countByOrganizationName()");
+        log.info("Call organizationInfoRepository.countByOrganizationName()");
         if (organizationInfoRepository.countByOrganizationName(request.getOrganizationId(), organizationInfo.getFatherOrganizationId(), request.getOrganizationName()).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.NAME_INVALID);
         }
         BeanUtils.copyProperties(request, organizationInfo, DataUtil.getNullPropertyNames(request));
-        log.info("call organizationInfoRepository.save()");
+        if (null != request.getNewFatherOrganizationId()) {
+            log.info("Change father organization: {} from {} to {}", organizationInfo.getOrganizationId(), organizationInfo.getFatherOrganizationId(), request.getNewFatherOrganizationId());
+            final int oldFatherOrganizationIdL2 = organizationInfo.getFatherOrganizationId();
+            final int oldFatherOrganizationIdL1 = organizationInfoRepository.findById(oldFatherOrganizationIdL2).map(OrganizationInfo::getFatherOrganizationId).orElse(0);
+            final int newFatherOrganizationIdL2 = request.getNewFatherOrganizationId();
+            final int newFatherOrganizationIdL1 = organizationInfoRepository.findById(newFatherOrganizationIdL2).map(OrganizationInfo::getFatherOrganizationId).orElse(0);
+            organizationInfo.setFatherOrganizationId(request.getNewFatherOrganizationId());
+
+            final List<OrganizationMappingInfo> omiList = organizationMappingInfoRepository.findByFatherOrganizationId(organizationInfo.getOrganizationId()).orElse(new ArrayList<>());
+            omiList.forEach(m -> {
+                final List<OrganizationMappingInfo> omiChild = organizationMappingInfoRepository.findByChildOrganizationId(m.getChildOrganizationId()).orElse(new ArrayList<>());
+                omiChild.forEach(mc -> {
+                    if (mc.getFatherOrganizationId().equals(oldFatherOrganizationIdL1)) {
+                        mc.setFatherOrganizationId(newFatherOrganizationIdL1);
+
+                        organizationMappingInfoRepository.save(mc);
+                    } else if (mc.getFatherOrganizationId().equals(oldFatherOrganizationIdL2)) {
+                        mc.setFatherOrganizationId(newFatherOrganizationIdL2);
+
+                        organizationMappingInfoRepository.save(mc);
+                    }
+                });
+            });
+        }
+        log.info("Call organizationInfoRepository.save()");
         organizationInfoRepository.save(organizationInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.ORGANIZATION, String.format("%d", organizationInfo.getOrganizationId()), request);
 
@@ -127,22 +151,22 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<Boolean> delete(Integer id) {
-        log.info("call delete({})", id);
+        log.info("Call delete({})", id);
 
-        log.info("call userOrganizationInfoRepository.countByOrganizationId({})", id);
+        log.info("Call userOrganizationInfoRepository.countByOrganizationId({})", id);
         if (userOrganizationInfoRepository.countByOrganizationId(id).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
         }
-        log.info("call organizationMappingInfoRepository.countByFatherOrganizationId({})", id);
+        log.info("Call organizationMappingInfoRepository.countByFatherOrganizationId({})", id);
         if (organizationMappingInfoRepository.countByFatherOrganizationIdAndFlag(id, Const.YES).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
         }
-        log.info("call userInfoRepository.countByOrganizationId({})", id);
+        log.info("Call userInfoRepository.countByOrganizationId({})", id);
         if (userInfoRepository.countByOrganizationId(id).orElse(0) > 0) {
             return new ResponseData(ErrorMessage.ORGANIZATION_HAS_BEEN_USED);
         }
 
-        log.info("call organizationMappingInfoRepository.delete(childOrganizationId {})", id);
+        log.info("Call organizationMappingInfoRepository.delete(childOrganizationId {})", id);
         organizationMappingInfoRepository.findByChildOrganizationId(id).ifPresent(ms -> ms.forEach(m -> organizationMappingInfoRepository.delete(m)));
         final OrganizationInfo organizationInfo = organizationInfoRepository.findById(id).orElse(null);
         if (null != organizationInfo) {
@@ -155,11 +179,11 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<Page<OrganizationInfoDto>> findPageable(SearchOrganizationRequest request) {
-        log.info("call findPageable(): {}", request);
+        log.info("Call findPageable(): {}", request);
         request.init();
 
         final Pageable pageable = request.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
-        log.info("call organizationInfoPage.findPageable()");
+        log.info("Call organizationInfoPage.findPageable()");
         final Page<OrganizationInfo> organizationInfoPage = organizationInfoRepository.findPageable(request, pageable);
 
         return new ResponseData<>(request.exchange(organizationInfoMapper, organizationInfoPage, pageable, OrganizationInfoDto.class));
@@ -167,10 +191,10 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<List<OrganizationInfoDto>> find(SearchOrganizationRequest request) {
-        log.info("call find(): {}", request);
+        log.info("Call find(): {}", request);
         request.init();
 
-        log.info("call organizationInfoRepository.find()");
+        log.info("Call organizationInfoRepository.find()");
         final List<OrganizationInfo> organizationInfoList = organizationInfoRepository.find(request);
 
         return new ResponseData<>(organizationInfoMapper.mapAsList(organizationInfoList, OrganizationInfoDto.class));
@@ -178,7 +202,7 @@ public class OrganizationServiceImpl extends OperationLogService implements Orga
 
     @Override
     public ResponseData<List<OrganizationInfoDto>> findByUser(Integer userId) {
-        log.info("call organizationInfoRepository.findByUser({})", userId);
+        log.info("Call organizationInfoRepository.findByUser({})", userId);
         final List<OrganizationInfo> organizationInfoList = organizationInfoRepository.findByUser(userId);
 
         return new ResponseData<>(organizationInfoMapper.mapAsList(organizationInfoList, OrganizationInfoDto.class));

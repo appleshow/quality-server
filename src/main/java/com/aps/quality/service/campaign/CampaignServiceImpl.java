@@ -33,7 +33,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Boolean> create(final CreateCampaignRequest request) {
-        log.info("call create()");
+        log.info("Call create()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -47,7 +47,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
         BeanUtils.copyProperties(request, campaignInfo, DataUtil.getNullPropertyNames(request));
         campaignInfo.setStatus(Const.Status.NORMAL.getCode());
 
-        log.info("call campaignInfoRepository.save()");
+        log.info("Call campaignInfoRepository.save()");
         campaignInfo.beforeSave();
         campaignInfoRepository.save(campaignInfo);
         saveLog(Const.OperationType.CREATE, Const.OperationSubType.CAMPAIGN, request.getCampaignName(), request);
@@ -57,7 +57,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Boolean> update(final UpdateCampaignRequest request) {
-        log.info("call update()");
+        log.info("Call update()");
 
         final ErrorMessage check = request.check();
         if (ErrorMessage.NULL != check) {
@@ -68,7 +68,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
             return new ResponseData(ErrorMessage.CAMPAIGN_NOT_EXIST);
         }
         BeanUtils.copyProperties(request, campaignInfo, DataUtil.getNullPropertyNames(request));
-        log.info("call campaignInfoRepository.save()");
+        log.info("Call campaignInfoRepository.save()");
         campaignInfo.beforeSave();
         campaignInfoRepository.save(campaignInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.CAMPAIGN, campaignInfo.getCampaignName(), request);
@@ -78,7 +78,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Boolean> delete(Integer id) {
-        log.info("call delete()");
+        log.info("Call delete()");
 
         final CampaignInfo campaignInfo = campaignInfoRepository.findById(id).orElse(null);
         if (null == campaignInfo) {
@@ -92,7 +92,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Boolean> invalid(final Integer id) {
-        log.info("call invalid({})", id);
+        log.info("Call invalid({})", id);
 
         final CampaignInfo campaignInfo = campaignInfoRepository.findById(id).orElse(null);
         if (null == campaignInfo) {
@@ -100,7 +100,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
         }
         campaignInfo.setStatus(Const.Status.INVALID.getCode());
 
-        log.info("call campaignInfoRepository.save()");
+        log.info("Call campaignInfoRepository.save()");
         campaignInfoRepository.save(campaignInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.CAMPAIGN_STATUS, campaignInfo.getCampaignName(), Const.Status.INVALID.getDescription());
 
@@ -109,7 +109,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Boolean> enable(Integer id) {
-        log.info("call invalid({})", id);
+        log.info("Call invalid({})", id);
 
         final CampaignInfo campaignInfo = campaignInfoRepository.findById(id).orElse(null);
         if (null == campaignInfo) {
@@ -117,7 +117,7 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
         }
         campaignInfo.setStatus(Const.Status.NORMAL.getCode());
 
-        log.info("call campaignInfoRepository.save()");
+        log.info("Call campaignInfoRepository.save()");
         campaignInfoRepository.save(campaignInfo);
         saveLog(Const.OperationType.UPDATE, Const.OperationSubType.USER_STATUS, campaignInfo.getCampaignName(), Const.Status.NORMAL.getDescription());
 
@@ -126,11 +126,11 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<Page<CampaignInfoDto>> findPageable(final SearchCampaignRequest request) {
-        log.info("call findPageable(): {}", request);
+        log.info("Call findPageable(): {}", request);
         request.init();
 
         final Pageable pageable = request.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
-        log.info("call campaignInfoRepository.findPageable()");
+        log.info("Call campaignInfoRepository.findPageable()");
         final Page<CampaignInfo> campaignInfoPage = campaignInfoRepository.findPageable(request, pageable);
 
         return new ResponseData<>(request.exchange(campaignInfoMapper, campaignInfoPage, pageable, CampaignInfoDto.class));
@@ -138,10 +138,10 @@ public class CampaignServiceImpl extends OperationLogService implements Campaign
 
     @Override
     public ResponseData<List<CampaignInfoDto>> find(final SearchCampaignRequest request) {
-        log.info("call find(): {}", request);
+        log.info("Call find(): {}", request);
         request.init();
 
-        log.info("call campaignInfoRepository.find()");
+        log.info("Call campaignInfoRepository.find()");
         final List<CampaignInfo> campaignInfos = campaignInfoRepository.find(request);
 
         return new ResponseData<>(campaignInfoMapper.mapAsList(campaignInfos, CampaignInfoDto.class));

@@ -45,7 +45,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseData<GroupInfoDto> create(CreateGroupRequest request) {
-        log.info("call create(): {}", request);
+        log.info("Call create(): {}", request);
         if (!StringUtils.hasLength(request.getGroupName())) {
             return new ResponseData<>(ErrorMessage.GROUP_NAME_IS_NULL);
         }
@@ -56,7 +56,7 @@ public class GroupServiceImpl implements GroupService {
         final GroupInfo groupInfo = groupInfoMapper.map(request, GroupInfo.class);
         groupInfo.setStatus(1);
 
-        log.info("call groupInfoRepository.save()");
+        log.info("Call groupInfoRepository.save()");
         groupInfoRepository.save(groupInfo);
 
         return new ResponseData<>(groupInfoMapper.map(groupInfo, GroupInfoDto.class));
@@ -64,7 +64,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseData<GroupInfoDto> update(UpdateGroupRequest request) {
-        log.info("call update(): {}", request);
+        log.info("Call update(): {}", request);
         if (null == request.getGroupId()) {
             return new ResponseData<>(ErrorMessage.ID_CAN_NOT_BE_NULL);
         }
@@ -85,7 +85,7 @@ public class GroupServiceImpl implements GroupService {
         final GroupInfo groupInfo = new GroupInfo();
         BeanUtils.copyProperties(request, groupInfo, DataUtil.getNullPropertyNames(request));
 
-        log.info("call groupInfoRepository.save()");
+        log.info("Call groupInfoRepository.save()");
         groupInfoRepository.save(groupInfo);
 
         return new ResponseData<>(groupInfoMapper.map(groupInfo, GroupInfoDto.class));
@@ -100,7 +100,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseData<Boolean> assignGroupToUser(AssignGroupToUserRequest request) {
-        log.info("call assignGroupToUser(): {}", request);
+        log.info("Call assignGroupToUser(): {}", request);
         final GroupInfo groupInfo = groupInfoRepository.findById(request.getGroupId()).orElse(null);
         if (null == groupInfo) {
             return new ResponseData<>(ErrorMessage.GROUP_NOT_EXIST);
@@ -119,7 +119,7 @@ public class GroupServiceImpl implements GroupService {
                             userRoleInfo.setRoleId(gr.getRoleId());
                             userRoleInfo.setStatus(gr.getStatus());
 
-                            log.info("call userRoleInfoRepository.save()");
+                            log.info("Call userRoleInfoRepository.save()");
                             userRoleInfoRepository.save(userRoleInfo);
                         }
                     });
@@ -130,11 +130,11 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseData<Page<GroupInfoDto>> findGroupPageable(SearchGroupRequest search) {
-        log.info("call findGroupPageable(): {}", search);
+        log.info("Call findGroupPageable(): {}", search);
         search.init();
 
         final Pageable pageable = search.getDefaultPageable(new Sort.Order(Sort.Direction.DESC, "createTime"));
-        log.info("call groupInfoRepository.findPageable()");
+        log.info("Call groupInfoRepository.findPageable()");
         final Page<GroupInfo> groupInfoPage = groupInfoRepository.findPageable(search, pageable);
 
         return new ResponseData<>(search.exchange(groupInfoMapper, groupInfoPage, pageable, GroupInfoDto.class));
@@ -142,10 +142,10 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseData<List<GroupInfoDto>> findGroup(SearchGroupRequest search) {
-        log.info("call findRole(): {}", search);
+        log.info("Call findRole(): {}", search);
         search.init();
 
-        log.info("call groupInfoRepository.find()");
+        log.info("Call groupInfoRepository.find()");
         final List<GroupInfo> groupInfoList = groupInfoRepository.find(search);
 
         return new ResponseData<>(groupInfoMapper.mapAsList(groupInfoList, GroupInfoDto.class));
